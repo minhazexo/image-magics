@@ -1,0 +1,13 @@
+README.md
+setup.py
+src/image_magics/__init__.py
+src/image_magics/core.py
+src/image_magics/enhancement.py
+src/image_magics/filters.py
+src/image_magics/transforms.py
+src/image_magics.egg-info/PKG-INFO
+src/image_magics.egg-info/SOURCES.txt
+src/image_magics.egg-info/dependency_links.txt
+src/image_magics.egg-info/requires.txt
+src/image_magics.egg-info/top_level.txt
+tests/test_core.py

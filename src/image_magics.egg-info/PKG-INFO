@@ -1,0 +1,105 @@
+Metadata-Version: 2.4
+Name: image-magics
+Version: 0.1.0
+Summary: A toolset for advanced image processing and manipulation
+Home-page: https://github.com/example/image-magics
+Author: Image Magics Team
+Author-email: contact@imagemagics.example
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Multimedia :: Graphics :: Graphics Conversion
+Classifier: Topic :: Scientific/Engineering :: Image Processing
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: numpy>=1.20.0
+Requires-Dist: Pillow>=8.0.0
+Provides-Extra: opencv
+Requires-Dist: opencv-python>=4.5.0; extra == "opencv"
+Provides-Extra: torch
+Requires-Dist: torch>=1.9.0; extra == "torch"
+Requires-Dist: torchvision>=0.10.0; extra == "torch"
+Provides-Extra: dev
+Requires-Dist: pytest>=6.0.0; extra == "dev"
+Requires-Dist: black; extra == "dev"
+Requires-Dist: flake8; extra == "dev"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# Image Magics
+
+## Overview
+
+Image Magics is a Python package for advanced image processing and manipulation, designed to provide powerful tools for developers and end-users. The library focuses on:
+
+- **Core Image Processing**: Basic operations like filters, transformations, and enhancements
+- **AI-Powered Enhancements**: Advanced features using machine learning for image analysis and modification
+- **Performance**: Optimized for speed and efficiency with optional GPU acceleration
+- **Usability**: Clean API with comprehensive documentation
+
+## Installation
+
+```bash
+pip install image-magics
+```
+
+Or with optional dependencies:
+
+```bash
+# With OpenCV support (for advanced image processing)
+pip install image-magics[opencv]
+
+# With PyTorch support (for AI features)
+pip install image-magics[torch]
+
+# With development tools
+pip install image-magics[dev]
+```
+
+## Basic Usage
+
+```python
+from image_magics import Image
+
+# Load and process an image
+img = Image.load("input.jpg")
+processed = img.grayscale().enhance_contrast(1.5)
+processed.save("output.jpg")
+```
+
+## Features
+
+- 📸 Image loading and saving (multiple formats)
+- 🎨 Color filters and adjustments
+- 🔄 Geometric transformations
+- 🧠 AI-powered image analysis and enhancement
+- 🧪 Comprehensive testing suite
+- 📚 Detailed documentation
+
+## Testing
+
+Run tests with:
+```bash
+pytest tests/
+```
+
+## Contributing
+
+We welcome contributions! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.

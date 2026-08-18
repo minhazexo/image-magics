@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --primary: 243 75% 59%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 243 75% 96%;
+    --accent-foreground: 243 75% 40%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 243 75% 59%;
+    --checker-light: 0 0% 96%;
+    --checker-dark: 0 0% 86%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222 47% 7%;
+    --foreground: 210 40% 96%;
+    --card: 222 44% 10%;
+    --card-foreground: 210 40% 96%;
+    --primary: 243 82% 70%;
+    --primary-foreground: 222 47% 7%;
+    --secondary: 222 35% 15%;
+    --secondary-foreground: 210 40% 96%;
+    --muted: 222 35% 15%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 243 40% 18%;
+    --accent-foreground: 243 82% 80%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 222 32% 18%;
+    --input: 222 32% 18%;
+    --ring: 243 82% 70%;
+    --checker-light: 222 25% 14%;
+    --checker-dark: 222 25% 18%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .checkerboard {
+    background-image:
+      linear-gradient(45deg, hsl(var(--checker-dark)) 25%, transparent 25%),
+      linear-gradient(-45deg, hsl(var(--checker-dark)) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, hsl(var(--checker-dark)) 75%),
+      linear-gradient(-45deg, transparent 75%, hsl(var(--checker-dark)) 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+    background-color: hsl(var(--checker-light));
+  }
+
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .tool-card-hover {
+    @apply transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/10;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
