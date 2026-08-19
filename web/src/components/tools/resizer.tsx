@@ -31,7 +31,7 @@ export function ResizerTool() {
       ctaLabel="Resize Images"
       whatItDoes="The Image Resizer scales your images to precise pixel dimensions, percentages, or one of the built-in social media presets — with optional format conversion."
       howToUse="Upload images, choose pixels or percentage, set your target size (or pick a social preset), choose an output format, then click Resize Images. Batch resize is fully supported."
-      supportedFormats={["JPG", "PNG", "WEBP", "AVIF", "GIF", "BMP"]}
+      supportedFormats={["JPG", "PNG", "WEBP", "GIF", "BMP"]}
       privacyNote="Resizing happens locally in your browser. Images are never uploaded to our servers."
       faq={[
         { question: "Can I resize images without losing quality?", answer: "Resizing down always loses some detail, but our LANCZOS-quality resampling keeps results as sharp as possible. Sharpening after resize is available in the optimizer." },

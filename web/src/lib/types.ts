@@ -1,4 +1,4 @@
-export type ImageFormat = "jpeg" | "png" | "webp" | "avif" | "gif" | "bmp" | "tiff";
+export type ImageFormat = "jpeg" | "png" | "webp" | "gif" | "bmp" | "tiff";
 
 export type OutputFormat = Exclude<ImageFormat, "gif" | "tiff">;
 
@@ -117,14 +117,6 @@ export interface RemoveBackgroundOptions {
   color?: { r: number; g: number; b: number };
 }
 
-export type BackgroundReplacement =
-  | { type: "transparent" }
-  | { type: "white" }
-  | { type: "black" }
-  | { type: "color"; color: string }
-  | { type: "gradient"; from: string; to: string }
-  | { type: "image"; dataUrl: string };
-
 export interface ImageMetadataInfo {
   width: number;
   height: number;
@@ -185,10 +177,9 @@ export const FORMAT_OPTIONS: FormatOption[] = [
   { value: "jpeg", label: "JPG", extension: "jpg", mime: "image/jpeg" },
   { value: "png", label: "PNG", extension: "png", mime: "image/png" },
   { value: "webp", label: "WEBP", extension: "webp", mime: "image/webp" },
-  { value: "avif", label: "AVIF", extension: "avif", mime: "image/avif" },
 ];
 
-export const SUPPORTED_INPUT_FORMATS = ["jpeg", "png", "webp", "gif", "bmp", "avif"] as const;
+export const SUPPORTED_INPUT_FORMATS = ["jpeg", "png", "webp", "gif", "bmp"] as const;
 
 export interface SavedPreference {
   format?: OutputFormat;

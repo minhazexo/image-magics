@@ -451,7 +451,7 @@ export function CropperTool() {
       <SeoContent
         whatItDoes="The Image Cropper lets you select any region of your image — free-form or locked to common ratios like 1:1, 4:3, 16:9 and 9:16 — then crop it with a smooth interactive editor."
         howToUse="Upload an image, drag the crop box to frame your subject, choose an aspect ratio, zoom if needed, then click Apply Crop. Rotate and flip are available before cropping."
-        supportedFormats={["JPG", "PNG", "WEBP", "AVIF", "GIF", "BMP"]}
+        supportedFormats={["JPG", "PNG", "WEBP", "GIF", "BMP"]}
         privacyNote="Cropping is done entirely in your browser. Images never leave your device."
         faq={[
           { question: "How do I keep a fixed aspect ratio?", answer: "Select one of the ratio buttons (1:1, 4:3, 16:9…) before dragging the crop handles — the selection will snap to that ratio." },

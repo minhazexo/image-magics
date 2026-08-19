@@ -44,7 +44,7 @@ export function CompressorTool() {
       ctaLabel="Compress Image"
       whatItDoes="The Image Compressor reduces file size by re-encoding your image with an efficient format (WebP by default) and a carefully chosen quality level, removing metadata along the way."
       howToUse="Upload an image, pick a compression mode (or use manual quality), optionally change the output format, then click Compress Image. Compare the result and download it."
-      supportedFormats={["JPG", "PNG", "WEBP", "AVIF", "GIF", "BMP"]}
+      supportedFormats={["JPG", "PNG", "WEBP", "GIF", "BMP"]}
       privacyNote="Compression happens locally in your browser. No files are uploaded, and nothing is stored on our servers."
       faq={[
         { question: "Can I compress multiple images?", answer: "Yes — upload several images at once and they will all be compressed with the same settings." },

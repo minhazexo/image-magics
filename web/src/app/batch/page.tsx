@@ -1,13 +1,22 @@
 import type { Metadata } from "next";
-import { BatchTool } from "@/components/tools/batch";
+import dynamic from "next/dynamic";
 import { buildMetadata } from "@/lib/seo";
 
+const BatchTool = dynamic(() => import("@/components/tools/batch").then((m) => m.BatchTool), {
+  ssr: false,
+  loading: () => (
+    <div className="container-page flex min-h-[60vh] items-center justify-center">
+      <div className="text-sm text-muted-foreground">Loading batch processor…</div>
+    </div>
+  ),
+});
+
 export const metadata: Metadata = buildMetadata({
-  title: "Free Batch Image Processor — Compress & Resize Many Images at Once",
+  title: "Free Batch Image Processor — Resize, Convert & Compress Multiple Images",
   description:
-    "Batch compress, resize and convert up to 100+ images at once with identical settings, then download them as a ZIP. Free, fast and entirely in your browser.",
+    "Process multiple images at once — resize, convert, compress and download as ZIP. Free, fast and private.",
   path: "/batch",
-  keywords: ["batch image processor", "bulk compress", "bulk resize", "zip images"],
+  keywords: ["batch image processor", "bulk resize", "bulk compress", "zip download"],
 });
 
 export default function BatchPage() {

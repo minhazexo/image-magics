@@ -8,12 +8,10 @@ import {
   RotateCw,
   ScanEye,
   SlidersHorizontal,
-  Sparkles,
   SquareDashed,
   Wand2,
   Images,
   Type,
-  Eraser,
   Scissors,
   Palette,
 } from "lucide-react";
@@ -39,7 +37,7 @@ export const TOOLS: ToolDefinition[] = [
     description: "Compress, resize and convert your images in one pass while preserving quality.",
     category: "Optimize",
     icon: ImageDown,
-    keywords: ["optimize", "compress", "webp", "avif"],
+    keywords: ["optimize", "compress", "webp"],
   },
   {
     slug: "compressor",
@@ -98,11 +96,11 @@ export const TOOLS: ToolDefinition[] = [
   {
     slug: "converter",
     name: "Image Converter",
-    shortDescription: "Convert between JPG, PNG, WEBP and AVIF.",
-    description: "Convert images to JPG, PNG, WebP and AVIF with format-specific quality options.",
+    shortDescription: "Convert between JPG, PNG and WEBP.",
+    description: "Convert images to JPG, PNG and WebP with format-specific quality options.",
     category: "Convert",
     icon: RefreshCw,
-    keywords: ["convert", "jpg", "png", "webp", "avif"],
+    keywords: ["convert", "jpg", "png", "webp"],
   },
   {
     slug: "jpg-to-png",
@@ -131,24 +129,7 @@ export const TOOLS: ToolDefinition[] = [
     icon: Wand2,
     keywords: ["webp", "convert"],
   },
-  {
-    slug: "avif-converter",
-    name: "AVIF Converter",
-    shortDescription: "Convert any image to modern AVIF.",
-    description: "Convert to AVIF, the most efficient modern image format for the web.",
-    category: "Convert",
-    icon: Sparkles,
-    keywords: ["avif", "convert", "modern format"],
-  },
-  {
-    slug: "background-remover",
-    name: "Background Remover",
-    shortDescription: "Create transparent PNG images automatically.",
-    description: "Remove image backgrounds locally and replace them with transparent, color or gradient.",
-    category: "Background",
-    icon: Eraser,
-    keywords: ["remove background", "transparent", "cutout"],
-  },
+
   {
     slug: "transparent-image",
     name: "Transparent Image Maker",
@@ -193,7 +174,7 @@ export function getTool(slug: string): ToolDefinition | undefined {
 
 export const CATEGORY_ORDER: ToolCategory[] = ["Optimize", "Edit", "Convert", "Background", "Privacy", "Batch"];
 
-export const HOMEPAGE_TOOLS = ["compressor", "resizer", "background-remover", "converter", "optimizer", "batch"];
+export const HOMEPAGE_TOOLS = ["compressor", "resizer", "transparent-image", "converter", "optimizer", "batch"];
 
 export function toolIcon(slug: string): LucideIcon {
   return getTool(slug)?.icon ?? SquareDashed;

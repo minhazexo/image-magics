@@ -5,7 +5,6 @@ const EXTENSION_BY_FORMAT: Record<OutputFormat, string> = {
   jpeg: "jpg",
   png: "png",
   webp: "webp",
-  avif: "avif",
   bmp: "bmp",
 };
 
@@ -52,7 +51,6 @@ export function inferFormatFromName(name: string): ImageFormat | "unknown" {
     jpeg: "jpeg",
     png: "png",
     webp: "webp",
-    avif: "avif",
     gif: "gif",
     bmp: "bmp",
     tiff: "tiff",
@@ -69,8 +67,6 @@ export function mimeForFormat(format: ImageFormat | "auto"): string {
       return "image/png";
     case "webp":
       return "image/webp";
-    case "avif":
-      return "image/avif";
     case "gif":
       return "image/gif";
     case "bmp":

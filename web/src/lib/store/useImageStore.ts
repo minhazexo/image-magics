@@ -96,7 +96,7 @@ function toQueueItem(image: UploadedImage): QueueItemMeta {
   };
 }
 
-export type { ImageFormat };
+export type { ImageFormat } from "@/lib/types";
 export function useSelectedImage() {
   return useImageStore((state) => state.images.find((i) => i.id === state.selectedImageId) ?? null);
 }

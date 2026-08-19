@@ -13,7 +13,6 @@ describe("extForFormat", () => {
     expect(extForFormat("jpeg")).toBe("jpg");
     expect(extForFormat("png")).toBe("png");
     expect(extForFormat("webp")).toBe("webp");
-    expect(extForFormat("avif")).toBe("avif");
     expect(extForFormat("bmp")).toBe("bmp");
   });
 });
@@ -77,7 +76,6 @@ describe("inferFormatFromName", () => {
     expect(inferFormatFromName("a.jpeg")).toBe("jpeg");
     expect(inferFormatFromName("a.PNG")).toBe("png");
     expect(inferFormatFromName("a.webp")).toBe("webp");
-    expect(inferFormatFromName("a.avif")).toBe("avif");
     expect(inferFormatFromName("a.gif")).toBe("gif");
     expect(inferFormatFromName("a.tiff")).toBe("tiff");
   });
@@ -93,7 +91,6 @@ describe("mimeForFormat", () => {
     expect(mimeForFormat("jpeg")).toBe("image/jpeg");
     expect(mimeForFormat("png")).toBe("image/png");
     expect(mimeForFormat("webp")).toBe("image/webp");
-    expect(mimeForFormat("avif")).toBe("image/avif");
     expect(mimeForFormat("gif")).toBe("image/gif");
     expect(mimeForFormat("bmp")).toBe("image/bmp");
     expect(mimeForFormat("tiff")).toBe("image/tiff");

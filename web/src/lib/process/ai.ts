@@ -3,6 +3,7 @@
 export interface AiBackgroundOptions {
   mode?: "auto" | "color" | "manual";
   alphaMatting?: boolean;
+  edgeRefinement?: boolean;
   foregroundThreshold?: number;
   backgroundThreshold?: number;
   erodeSize?: number;
@@ -22,14 +23,19 @@ export interface TransparencyStats {
   totalPixels: number;
 }
 
-export const MAX_IMAGE_PIXELS = 40_000_000;
+export const MAX_IMAGE_PIXELS = 20_000_000;
 export const MAX_IMAGE_BYTES = 25 * 1024 * 1024;
 
 /**
  * Sends an image to the local AI background-removal service (via the
  * /api/transparent-image proxy) and returns a true RGBA PNG blob.
  */
-export async function removeBackgroundViaAi(file: File, opts: AiBackgroundOptions = {}): Promise<Blob> {
+export interface AiResult {
+  blob: Blob;
+  pipeline: string;
+}
+
+export async function removeBackgroundViaAi(file: File, opts: AiBackgroundOptions = {}): Promise<AiResult> {
   if (file.size > MAX_IMAGE_BYTES) {
     throw new Error("Image exceeds the 25 MB limit. Please upload a smaller image.");
   }
@@ -46,6 +52,7 @@ export async function removeBackgroundViaAi(file: File, opts: AiBackgroundOption
   form.set("image", file, file.name);
   form.set("mode", opts.mode ?? "auto");
   form.set("alphaMatting", opts.alphaMatting === false ? "false" : "true");
+  form.set("edgeRefinement", opts.edgeRefinement === false ? "false" : "true");
   if (opts.foregroundThreshold != null) form.set("alphaMattingForegroundThreshold", String(opts.foregroundThreshold));
   if (opts.backgroundThreshold != null) form.set("alphaMattingBackgroundThreshold", String(opts.backgroundThreshold));
   if (opts.erodeSize != null) form.set("alphaMattingErodeSize", String(opts.erodeSize));
@@ -69,7 +76,11 @@ export async function removeBackgroundViaAi(file: File, opts: AiBackgroundOption
     }
     throw new Error(message);
   }
-  return res.blob();
+
+  const pipeline = res.headers.get("X-Pipeline") ?? "unknown";
+  console.log("[bg-remover] Pipeline:", pipeline);
+
+  return { blob: await res.blob(), pipeline };
 }
 
 /**

@@ -227,7 +227,7 @@ export function RotatorTool() {
       <SeoContent
         whatItDoes="The Image Rotator & Flipper turns images 90° left, 90° right or 180°, and mirrors them horizontally or vertically. Every operation is instantly applied and ready to download."
         howToUse="Upload an image, then click rotate or flip buttons. The preview updates instantly. Download the result when you're happy."
-        supportedFormats={["JPG", "PNG", "WEBP", "AVIF", "GIF", "BMP"]}
+        supportedFormats={["JPG", "PNG", "WEBP", "GIF", "BMP"]}
         privacyNote="Rotation and flipping happen locally in your browser. Your images are never uploaded."
         faq={[
           { question: "Does rotating reduce image quality?", answer: "Rotating in 90° steps is lossless. Other angles are resampled, which can soften edges slightly." },

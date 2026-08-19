@@ -49,7 +49,7 @@ export default function AboutPage() {
         <h2 className="text-xl font-semibold">How the technology works</h2>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           Each tool is a thin interface over a shared processing engine that draws onto HTML Canvas
-          (and OffscreenCanvas inside Web Workers where supported). Formats such as WebP and AVIF are
+          (and OffscreenCanvas inside Web Workers where supported). Formats such as WebP are
           encoded with the browser&apos;s native encoders, so you always get high-quality output with no
           extra downloads. ZIP archives for batch downloads are generated locally with JSZip. This
           architecture keeps bundles small, keeps memory predictable, and means the tools work offline

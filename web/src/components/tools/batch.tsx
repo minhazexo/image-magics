@@ -261,7 +261,7 @@ export function BatchTool() {
       <SeoContent
         whatItDoes="The Batch Image Processor applies one set of settings — resize width, output format and quality — to dozens of images at once, showing live per-file status and progress. The finished files are zipped in your browser."
         howToUse="Upload many images, set the global resize/format/quality options, click Process, watch each file move from Waiting to Complete, then download everything as a ZIP."
-        supportedFormats={["JPG", "PNG", "WEBP", "AVIF", "GIF", "BMP"]}
+        supportedFormats={["JPG", "PNG", "WEBP", "GIF", "BMP"]}
         privacyNote="Batch processing is 100% local. Images are never uploaded; the ZIP archive is created inside your browser."
         faq={[
           { question: "Can I compress multiple images?", answer: "Yes — this tool is built for exactly that. Upload 10, 50 or even 100+ images and process them with identical settings." },

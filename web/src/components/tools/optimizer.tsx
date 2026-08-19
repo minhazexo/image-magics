@@ -55,10 +55,10 @@ export function OptimizerTool() {
       ctaLabel="Optimize Image"
       whatItDoes="The Image Optimizer re-encodes your image with the exact format, quality and dimensions you choose, stripping unneeded metadata for the smallest possible file that still looks great. All processing happens locally in your browser."
       howToUse="Upload one or more images, pick an output format and quality, optionally enable resizing, then click Optimize Image. Compare the before/after result and download the optimized file."
-      supportedFormats={["JPG", "PNG", "WEBP", "AVIF", "GIF", "BMP"]}
+      supportedFormats={["JPG", "PNG", "WEBP", "GIF", "BMP"]}
       privacyNote="Your images are processed locally in your browser. They are never uploaded to our servers and are automatically released from memory after download."
       faq={[
-        { question: "What is the best format for the web?", answer: "WebP or AVIF offer the best quality-per-byte for photos. Use PNG when you need transparency and JPG for maximum compatibility." },
+        { question: "What is the best format for the web?", answer: "WebP offers the best quality-per-byte for photos. Use PNG when you need transparency and JPG for maximum compatibility." },
         { question: "Does optimizing strip metadata?", answer: "Yes — by default we strip EXIF, GPS and camera information. You can disable this in Advanced Settings." },
         { question: "What quality should I use?", answer: "82 is a great starting point for photos. Try the presets and use the before/after slider to find the right balance." },
       ]}

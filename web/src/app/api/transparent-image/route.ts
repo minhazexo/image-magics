@@ -10,6 +10,7 @@ const MAX_PROCESSING_MS = 120_000;
 const FORWARD_FIELDS = [
   "mode",
   "alphaMatting",
+  "edgeRefinement",
   "alphaMattingForegroundThreshold",
   "alphaMattingBackgroundThreshold",
   "alphaMattingErodeSize",
@@ -60,12 +61,16 @@ export async function POST(req: NextRequest) {
 
     if (res.ok) {
       const data = Buffer.from(await res.arrayBuffer());
+      // Forward pipeline info headers from the backend
+      const pipeline = res.headers.get("x-pipeline") ?? "unknown";
+      const hasAlpha = res.headers.get("x-has-alpha") ?? "true";
       return new NextResponse(data, {
         status: 200,
         headers: {
           "Content-Type": "image/png",
           "Content-Length": String(data.byteLength),
-          "X-Has-Alpha": "true",
+          "X-Has-Alpha": hasAlpha,
+          "X-Pipeline": pipeline,
           "Cache-Control": "no-store",
         },
       });

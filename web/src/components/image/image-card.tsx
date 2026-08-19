@@ -20,9 +20,9 @@ export function ImageCard({ image, onRemove, onSelect, selected, index }: ImageC
   return (
     <div
       className={[
-        "group relative overflow-hidden rounded-xl border bg-card transition-colors",
+        "group relative overflow-hidden rounded-xl border bg-card transition-all duration-200",
         invalid ? "border-destructive/40" : "border-border",
-        selected ? "border-primary ring-2 ring-primary/30" : "",
+        selected ? "border-primary ring-2 ring-primary/20 shadow-sm" : "hover:border-border/80 hover:shadow-xs",
       ].join(" ")}
     >
       <button
@@ -37,7 +37,7 @@ export function ImageCard({ image, onRemove, onSelect, selected, index }: ImageC
           <img
             src={invalid ? "" : image.url}
             alt={image.name}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover transition-opacity duration-200 group-hover:opacity-90"
             loading="lazy"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).style.opacity = "0.15";
@@ -45,39 +45,39 @@ export function ImageCard({ image, onRemove, onSelect, selected, index }: ImageC
           />
           {invalid && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-secondary p-3 text-center">
-              <FileWarning className="h-6 w-6 text-destructive" aria-hidden />
+              <FileWarning className="h-5 w-5 text-destructive" aria-hidden />
               <p className="text-xs font-medium text-destructive">{image.error ?? "Unsupported file"}</p>
             </div>
           )}
           {typeof index === "number" && (
-            <span className="absolute left-2 top-2 rounded-md bg-black/60 px-1.5 py-0.5 text-xs font-semibold text-white">
+            <span className="absolute left-1.5 top-1.5 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-white">
               {index + 1}
             </span>
           )}
         </div>
       </button>
 
-      <div className="flex items-start justify-between gap-2 p-3">
+      <div className="flex items-start justify-between gap-2 p-2.5">
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium" title={image.name}>
+          <p className="truncate text-[13px] font-medium" title={image.name}>
             {image.name}
           </p>
           {!invalid && (
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              {image.width} × {image.height} · {image.format.toUpperCase()} · {formatBytes(image.size)}
+            <p className="mt-0.5 text-[11px] text-muted-foreground">
+              {image.width}×{image.height} · {formatBytes(image.size)}
             </p>
           )}
-          {invalid && <p className="mt-0.5 text-xs text-muted-foreground">Invalid file</p>}
+          {invalid && <p className="mt-0.5 text-[11px] text-muted-foreground">Invalid file</p>}
         </div>
         <Tooltip content="Remove">
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+            className="h-7 w-7 shrink-0 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive"
             onClick={() => onRemove(image.id)}
             aria-label={`Remove ${image.name}`}
           >
-            <X className="h-4 w-4" />
+            <X className="h-3.5 w-3.5" />
           </Button>
         </Tooltip>
       </div>

@@ -19,7 +19,7 @@ interface ConverterToolProps {
 export function ConverterTool({
   defaultFormat = "webp",
   title = "Image Converter",
-  description = "Convert between JPG, PNG, WEBP and AVIF.",
+  description = "Convert between JPG, PNG and WebP.",
   ctaLabel = "Convert Image",
 }: ConverterToolProps) {
   const [format, setFormat] = useState<OutputFormat>(defaultFormat);
@@ -46,12 +46,12 @@ export function ConverterTool({
       ctaLabel={ctaLabel}
       whatItDoes="The Image Converter re-encodes your image into the format you choose with format-specific quality settings, keeping results crisp and compatible."
       howToUse="Upload an image, choose the output format, set the quality, and click the convert button. A before/after comparison and download follow immediately."
-      supportedFormats={["JPG", "PNG", "WEBP", "AVIF"]}
+      supportedFormats={["JPG", "PNG", "WEBP"]}
       privacyNote="Conversion happens locally in your browser. Your files are never uploaded to our servers."
       faq={[
         { question: "Why does JPG not support transparency?", answer: "The JPG format stores pixels as opaque RGB values. Transparent areas from a PNG are flattened to a background color (white by default) when converting to JPG." },
         { question: "What is WEBP?", answer: "WebP is a modern image format from Google that compresses photos 25–35% smaller than JPG at similar quality, and supports transparency." },
-        { question: "What is AVIF?", answer: "AVIF is a next-generation format based on AV1 video compression. It offers even better compression than WebP, especially for photos." },
+
       ]}
       buildJob={buildJob}
       renderControls={({ disabled, image }) => (

@@ -43,11 +43,30 @@ const config: Config = {
           light: "hsl(var(--checker-light))",
           dark: "hsl(var(--checker-dark))",
         },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "var(--radius-lg)",
+        md: "var(--radius)",
+        sm: "calc(var(--radius) - 2px)",
+      },
+      boxShadow: {
+        xs: "var(--shadow-xs)",
+        sm: "var(--shadow-sm)",
+        md: "var(--shadow-md)",
+        lg: "var(--shadow-lg)",
+        xl: "var(--shadow-xl)",
+      },
+      fontFamily: {
+        sans: ["var(--font-sans)"],
+        mono: ["var(--font-mono)"],
       },
       keyframes: {
         "fade-in": {
@@ -58,15 +77,25 @@ const config: Config = {
           from: { opacity: "0", transform: "translateY(8px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        "slide-down": {
+          from: { opacity: "0", transform: "translateY(-8px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
         "toast-in": {
           from: { opacity: "0", transform: "translateY(12px) scale(0.98)" },
           to: { opacity: "1", transform: "translateY(0) scale(1)" },
         },
+        "scale-in": {
+          from: { opacity: "0", transform: "scale(0.95)" },
+          to: { opacity: "1", transform: "scale(1)" },
+        },
       },
       animation: {
-        "fade-in": "fade-in 0.25s ease-out",
-        "slide-up": "slide-up 0.3s ease-out",
-        "toast-in": "toast-in 0.25s ease-out",
+        "fade-in": "fade-in 0.2s ease-out",
+        "slide-up": "slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+        "slide-down": "slide-down 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+        "toast-in": "toast-in 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+        "scale-in": "scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
       },
     },
   },

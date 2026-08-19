@@ -47,7 +47,7 @@ export function ColorToTransparentTool() {
       ctaLabel="Make Transparent"
       whatItDoes="The Color to Transparent tool removes an exact color (picked with the eyedropper or color picker) and replaces it with transparency, with fine tolerance and edge-softness control."
       howToUse="Upload an image, click on the image preview to sample a color (or use the color picker), adjust tolerance and edge softness, then click Make Transparent."
-      supportedFormats={["JPG", "PNG", "WEBP", "AVIF"]}
+      supportedFormats={["JPG", "PNG", "WEBP"]}
       privacyNote="Color removal runs locally in your browser. Nothing is uploaded."
       faq={[
         { question: "What does the eyedropper do?", answer: "Click anywhere on the image to sample the exact color under your cursor and set it as the color to remove." },

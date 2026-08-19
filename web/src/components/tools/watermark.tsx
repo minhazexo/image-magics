@@ -75,7 +75,7 @@ export function WatermarkTool() {
       ctaLabel="Apply Watermark"
       whatItDoes="The Watermark Tool places a text or image/logo watermark on your image with full control over position, opacity, size, rotation, color, font and margin. Tiling is supported."
       howToUse="Upload an image, choose a text or image watermark, style it with the controls, then click Apply Watermark. Download the result as a PNG."
-      supportedFormats={["JPG", "PNG", "WEBP", "AVIF"]}
+      supportedFormats={["JPG", "PNG", "WEBP"]}
       privacyNote="Watermarking happens locally in your browser. Logos you upload are used only to create the watermark and are never transmitted."
       faq={[
         { question: "Can I use my logo as a watermark?", answer: "Yes — switch to Image watermark and upload your logo. PNG logos with transparency work best." },

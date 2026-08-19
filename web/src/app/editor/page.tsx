@@ -1,6 +1,15 @@
 import type { Metadata } from "next";
-import { EditorTool } from "@/components/tools/editor";
+import dynamic from "next/dynamic";
 import { buildMetadata } from "@/lib/seo";
+
+const EditorTool = dynamic(() => import("@/components/tools/editor").then((m) => m.EditorTool), {
+  ssr: false,
+  loading: () => (
+    <div className="container-page flex min-h-[60vh] items-center justify-center">
+      <div className="text-sm text-muted-foreground">Loading editor…</div>
+    </div>
+  ),
+});
 
 export const metadata: Metadata = buildMetadata({
   title: "Free Image Editor — Brightness, Contrast, Filters & More Online",

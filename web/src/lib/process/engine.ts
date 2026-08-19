@@ -65,7 +65,6 @@ type BlobType =
   | "image/jpeg"
   | "image/png"
   | "image/webp"
-  | "image/avif"
   | "image/bmp"
   | "image/gif";
 
@@ -89,8 +88,6 @@ export function resolveMime(format: ImageFormat | "auto", sourceFormat?: ImageFo
       return "image/png";
     case "webp":
       return "image/webp";
-    case "avif":
-      return "image/avif";
     case "bmp":
       return "image/bmp";
     case "gif":
@@ -253,57 +250,7 @@ function hexToRgb(hex: string): Rgb {
   return { r: (value >> 16) & 255, g: (value >> 8) & 255, b: value & 255 };
 }
 
-export interface BackgroundReplacementLike {
-  type: "transparent" | "white" | "black" | "color" | "gradient" | "image";
-  color?: string;
-  from?: string;
-  to?: string;
-  dataUrl?: string;
-}
 
-function applyBackground(
-  ctx: CanvasRenderingContext2D,
-  canvas: HTMLCanvasElement,
-  replacement: BackgroundReplacementLike
-): void {
-  const w = canvas.width;
-  const h = canvas.height;
-  if (replacement.type === "transparent") return;
-
-  const bg = createCanvas(w, h);
-  const bctx = bg.getContext("2d") as CanvasRenderingContext2D;
-  switch (replacement.type) {
-    case "white":
-      bctx.fillStyle = "#ffffff";
-      bctx.fillRect(0, 0, w, h);
-      break;
-    case "black":
-      bctx.fillStyle = "#000000";
-      bctx.fillRect(0, 0, w, h);
-      break;
-    case "color": {
-      bctx.fillStyle = replacement.color ?? "#ffffff";
-      bctx.fillRect(0, 0, w, h);
-      break;
-    }
-    case "gradient": {
-      const grad = bctx.createLinearGradient(0, 0, w, h);
-      grad.addColorStop(0, replacement.from ?? "#ffffff");
-      grad.addColorStop(1, replacement.to ?? "#cccccc");
-      bctx.fillStyle = grad;
-      bctx.fillRect(0, 0, w, h);
-      break;
-    }
-    case "image": {
-      const img = new Image();
-      img.decoding = "sync";
-      img.src = replacement.dataUrl ?? "";
-      bctx.drawImage(img, 0, 0, w, h);
-      break;
-    }
-  }
-  ctx.drawImage(bg, 0, 0);
-}
 
 /**
  * GIMP "color to alpha" per-pixel transform: converts how much a pixel
@@ -380,6 +327,14 @@ export function removeColorFromCanvas(
   ctx.putImageData(data, 0, 0);
 }
 
+/**
+ * Remove a background estimated from the image's borders.
+ *
+ * A flood fill seeded from the image border only removes the *connected*
+ * background region, so interior pixels that happen to share the background
+ * color (holes in the subject) are preserved. Boundary pixels are passed
+ * through the color-to-alpha transform to keep clean anti-aliased edges.
+ */
 /**
  * Remove a background estimated from the image's borders.
  *
@@ -729,7 +684,6 @@ export async function processBitmap(
 
   let currentWidth = bitmap.width;
   let currentHeight = bitmap.height;
-  let pendingBackground: BackgroundReplacementLike | null = null;
 
   ctx.drawImage(bitmap, 0, 0);
 
@@ -762,9 +716,7 @@ export async function processBitmap(
         break;
       }
       case "removeBackground": {
-        const rb = op.options as RemoveBackgroundOptions & { background?: BackgroundReplacementLike };
-        removeBackgroundFromCanvas(canvas, ctx, rb);
-        if (rb.background) pendingBackground = rb.background;
+        removeBackgroundFromCanvas(canvas, ctx, op.options as RemoveBackgroundOptions);
         break;
       }
       case "watermark": {
@@ -776,10 +728,6 @@ export async function processBitmap(
         break;
       }
     }
-  }
-
-  if (pendingBackground) {
-    applyBackground(ctx, canvas, pendingBackground);
   }
 
   const settings = encode

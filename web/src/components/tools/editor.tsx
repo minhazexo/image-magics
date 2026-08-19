@@ -300,7 +300,7 @@ export function EditorTool() {
       <SeoContent
         whatItDoes="The Image Editor applies brightness, contrast, saturation, exposure, blur, sharpen, grayscale and opacity adjustments with a live preview. Every change is non-destructive with full undo/redo."
         howToUse="Upload an image, drag the adjustment sliders and watch the preview update. Rotate or flip as needed, then click Export Image to download the full-resolution result."
-        supportedFormats={["JPG", "PNG", "WEBP", "AVIF", "GIF", "BMP"]}
+        supportedFormats={["JPG", "PNG", "WEBP", "GIF", "BMP"]}
         privacyNote="All editing happens locally in your browser. Nothing is uploaded and nothing is stored."
         faq={[
           { question: "Is editing non-destructive?", answer: "Yes. Your original file is never modified — edits are applied to a copy, and you can undo or redo freely until you export." },

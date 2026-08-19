@@ -14,11 +14,40 @@ import { calculateSavings } from "@/lib/utils/format";
 
 let worker: Worker | null = null;
 let pending = new Map<string, { resolve: (v: unknown) => void; reject: (e: unknown) => void }>();
+let workerReady = false;
+
+/**
+ * Suppress the "message channel closed" error that browser extensions
+ * (password managers, ad blockers, etc.) produce when they register
+ * chrome.runtime.onMessage listeners that return true for async
+ * responses but the page/worker terminates before the response arrives.
+ */
+function suppressExtensionMessageError() {
+  if (typeof window === "undefined") return;
+  const handler = (event: PromiseRejectionEvent) => {
+    const msg = String(event.reason?.message ?? event.reason ?? "");
+    if (
+      msg.includes("message channel closed") ||
+      msg.includes("listener indicated an asynchronous response") ||
+      msg.includes("response was not received")
+    ) {
+      event.preventDefault();
+    }
+  };
+  window.addEventListener("unhandledrejection", handler);
+}
+
+suppressExtensionMessageError();
 
 function getWorker(): Worker | null {
-  if (worker) return worker;
+  if (worker && workerReady) return worker;
   try {
     if (typeof window === "undefined" || !("Worker" in window)) return null;
+    // Clean up stale worker if it exists but isn't ready
+    if (worker && !workerReady) {
+      worker.terminate();
+      worker = null;
+    }
     const instance = new Worker(new URL("../workers/imageWorker.ts", import.meta.url), {
       type: "module",
     });
@@ -30,12 +59,23 @@ function getWorker(): Worker | null {
       if (msg.ok) p.resolve(msg);
       else p.reject(new Error(msg.error ?? "processing-failed"));
     };
-    instance.onerror = () => {
+    instance.onerror = (err) => {
+      // Suppress extension-originated errors that leak into the worker error handler
+      const errMsg = String(err?.message ?? "");
+      if (
+        errMsg.includes("message channel closed") ||
+        errMsg.includes("asynchronous response") ||
+        errMsg.includes("response was not received")
+      ) {
+        return;
+      }
       worker = null;
+      workerReady = false;
       pending.forEach((p) => p.reject(new Error("worker-crashed")));
       pending.clear();
     };
     worker = instance;
+    workerReady = true;
     return instance;
   } catch {
     return null;
@@ -44,11 +84,13 @@ function getWorker(): Worker | null {
 
 export function terminateWorker(): void {
   if (worker) {
+    // Reject all pending before terminating to avoid orphaned promises
+    pending.forEach((p) => p.reject(new Error("terminated")));
+    pending.clear();
     worker.terminate();
     worker = null;
+    workerReady = false;
   }
-  pending.forEach((p) => p.reject(new Error("terminated")));
-  pending.clear();
 }
 
 interface EncodeConfig {
@@ -136,8 +178,8 @@ export async function processFile(job: ProcessJobInput): Promise<ProcessJobOutpu
   if (w) {
     try {
       result = await runInWorker();
-    } catch (err) {
-      // Fall back to main thread on worker failure.
+    } catch {
+      // Fall back to main thread on worker failure
       result = await processOnMainThread(job);
     }
   } else {

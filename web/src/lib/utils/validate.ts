@@ -4,14 +4,13 @@ export const MAX_FILE_SIZE_MB = 100;
 export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 export const MAX_PIXEL_COUNT = 268_000_000; // ~ 16k x 16k
 
-export const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp", ".avif"];
+export const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp"];
 export const ACCEPTED_MIME_TYPES = [
   "image/jpeg",
   "image/png",
   "image/webp",
   "image/gif",
   "image/bmp",
-  "image/avif",
 ];
 
 export const uploadFileSchema = z

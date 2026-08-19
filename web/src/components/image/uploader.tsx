@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent, KeyboardEvent, ReactNode } from "react";
-import { UploadCloud, ImagePlus } from "lucide-react";
+import { UploadCloud, ImagePlus, X, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { UploadedImage } from "@/lib/types";
 import { decodeAndValidateImage, MAX_FILE_SIZE_MB, validateFileSize, validateFileType } from "@/lib/utils/validate";
@@ -16,9 +16,11 @@ interface ImageDropzoneProps {
   busy?: boolean;
   className?: string;
   children?: ReactNode;
+  /** Compact dropzone without extra padding */
+  compact?: boolean;
 }
 
-export function ImageDropzone({ multiple = true, maxFiles = 100, onFiles, busy, className, children }: ImageDropzoneProps) {
+export function ImageDropzone({ multiple = true, maxFiles = 100, onFiles, busy, className, children, compact }: ImageDropzoneProps) {
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const id = useId();
@@ -66,8 +68,11 @@ export function ImageDropzone({ multiple = true, maxFiles = 100, onFiles, busy, 
   return (
     <div
       className={cn(
-        "relative flex min-h-[220px] cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 text-center transition-colors",
-        dragging ? "border-primary bg-primary/5" : "border-border bg-secondary/30 hover:border-primary/50",
+        "relative flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-dashed transition-all duration-200",
+        compact ? "px-4 py-6" : "min-h-[180px] px-6 py-8",
+        dragging
+          ? "border-primary bg-primary/5 scale-[1.01]"
+          : "border-border/70 bg-secondary/20 hover:border-primary/40 hover:bg-secondary/30",
         busy && "pointer-events-none opacity-60",
         className
       )}
@@ -92,20 +97,34 @@ export function ImageDropzone({ multiple = true, maxFiles = 100, onFiles, busy, 
         aria-hidden
         tabIndex={-1}
       />
-      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-        {dragging ? <ImagePlus className="h-6 w-6" aria-hidden /> : <UploadCloud className="h-6 w-6" aria-hidden />}
+      <span
+        className={cn(
+          "flex items-center justify-center rounded-full bg-primary/10 text-primary transition-all duration-200",
+          compact ? "h-8 w-8" : "h-10 w-10"
+        )}
+      >
+        {dragging ? (
+          <ImagePlus className={cn(compact ? "h-4 w-4" : "h-5 w-5")} aria-hidden />
+        ) : (
+          <UploadCloud className={cn(compact ? "h-4 w-4" : "h-5 w-5")} aria-hidden />
+        )}
       </span>
-      <div>
-        <p className="text-base font-semibold text-foreground">
-          {dragging ? "Drop your images here" : "Drop your images here"}
+      <div className="text-center">
+        <p className={cn("font-medium text-foreground", compact ? "text-[13px]" : "text-sm")}>
+          {dragging ? "Drop your images here" : "Drag & drop images, or "}
+          {!dragging && (
+            <span className="text-primary">browse</span>
+          )}
         </p>
-        <p className="mt-1 text-sm text-muted-foreground">or</p>
-        <p className="mt-1 text-sm font-medium text-primary">Browse files</p>
       </div>
-      <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-        <span>JPG</span><span>·</span><span>PNG</span><span>·</span><span>WEBP</span><span>·</span>
-        <span>GIF</span><span>·</span><span>BMP</span><span>·</span><span>AVIF</span>
-        <span className="ml-2">Up to {MAX_FILE_SIZE_MB} MB</span>
+      <div className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 text-[11px] text-muted-foreground">
+        <span>JPG</span>
+        <span className="opacity-30">·</span>
+        <span>PNG</span>
+        <span className="opacity-30">·</span>
+        <span>WebP</span>
+        <span className="opacity-30">·</span>
+        <span>Max {MAX_FILE_SIZE_MB} MB</span>
       </div>
       {children}
     </div>
@@ -253,9 +272,10 @@ export function ImageUploader({ images, onChange, multiple = true, maxFiles = 10
         {dropzoneLabel}
       </ImageDropzone>
       {pendingCount > 0 && (
-        <p className="mt-2 text-sm text-muted-foreground" role="status" aria-live="polite">
+        <div className="mt-2 flex items-center justify-center gap-2 text-sm text-muted-foreground" role="status" aria-live="polite">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" />
           Validating {pendingCount} file{pendingCount === 1 ? "" : "s"}…
-        </p>
+        </div>
       )}
     </div>
   );

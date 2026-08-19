@@ -43,6 +43,7 @@ self.onmessage = async (event: MessageEvent<ProcessRequest>) => {
   const started = performance.now();
   try {
     const bitmap = await createImageBitmap(file);
+    // processBitmap is now async (supports AI-based removal)
     const result = await processBitmap(bitmap, operations as never, encode as never);
     const response: ProcessResponse = {
       id,
@@ -57,6 +58,14 @@ self.onmessage = async (event: MessageEvent<ProcessRequest>) => {
     bitmap.close?.();
   } catch (err) {
     const error = err instanceof Error ? err.message : String(err);
+    // Suppress extension-originated message channel errors
+    if (
+      error.includes("message channel closed") ||
+      error.includes("asynchronous response") ||
+      error.includes("response was not received")
+    ) {
+      return;
+    }
     const response: ProcessErrorResponse = { id, ok: false, error };
     (self as unknown as Worker).postMessage(response);
   }
