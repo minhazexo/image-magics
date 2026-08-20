@@ -1,5 +1,5 @@
 /* ImageTools service worker — offline-first caching for the app shell. */
-const CACHE_NAME = "imagetools-v1";
+const CACHE_NAME = "imagetools-v2";
 
 const PRECACHE = ["/", "/manifest.webmanifest", "/icon.svg", "/icon-192.png", "/icon-512.png"];
 

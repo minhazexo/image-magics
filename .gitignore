@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs
+*.log
+
+# Bun
+web/bun.lock
+
+# Environment
+.env
+.env.local

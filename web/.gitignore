@@ -32,3 +32,6 @@ next-env.d.ts
 
 # vercel
 .vercel
+
+# Build stubs
+/lib/

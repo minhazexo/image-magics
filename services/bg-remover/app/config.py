@@ -33,7 +33,7 @@ class Settings:
     rate_limit_window_s: float = field(default_factory=lambda: _float("RATE_LIMIT_WINDOW_SECONDS", 60.0))
 
     # --- Model ---
-    model_name: str = field(default_factory=lambda: _str("REMBG_MODEL", "u2net"))
+    model_name: str = field(default_factory=lambda: _str("REMBG_MODEL", "silueta"))
 
     # --- Edge refinement ---
     edge_refinement_enabled: bool = True

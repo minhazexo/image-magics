@@ -20,7 +20,8 @@ These are non-sensitive and reversible (clearing site data removes them).
 
 ## Third parties
 
-- No third-party image-processing or storage services are used.
+- No third-party image-processing or storage services are used for image data.
+- The AI background removal model is downloaded from a CDN (`staticimgly.com`) on first use and cached by the browser. The model runs locally — no image data is sent to any server.
 - No analytics or tracking scripts are bundled.
 - Google Fonts are self-hosted through `next/font` at build time — no runtime font requests.
 - The PWA service worker only caches the app shell for offline use.

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Sparkles, Droplet, Pencil, Upload, Loader2, Check } from "lucide-react";
 import { ToolLayout } from "@/components/layout/tool-layout";
 import { SeoContent } from "@/components/layout/seo-content";
@@ -11,7 +11,7 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { DownloadButton } from "@/components/download/download-button";
 import { MaskEditor } from "@/components/processing/mask-editor";
-import { removeBackgroundViaAi, verifyTransparency, MAX_IMAGE_BYTES, type TransparencyStats } from "@/lib/process/ai";
+import { removeBackgroundViaAi, verifyTransparency, preloadAiModel, MAX_IMAGE_BYTES, type TransparencyStats } from "@/lib/process/ai";
 import { removeColorFromCanvas, softenAlpha } from "@/lib/process/engine";
 import { decontaminateMatte } from "@/lib/process/mask";
 import { readExifOrientation, drawWithExifOrientation } from "@/lib/utils/exif";
@@ -27,13 +27,11 @@ interface TiResult {
   fileName: string;
 }
 
-/** AI processing step messages */
+/** AI processing step messages (fallback if no progress callback) */
 const AI_STEPS = [
-  "Uploading to AI service…",
+  "Loading AI model in browser…",
   "Running segmentation model…",
   "Generating alpha mask…",
-  "Refining edges…",
-  "Decontaminating colors…",
   "Encoding PNG…",
 ];
 
@@ -70,6 +68,11 @@ async function decontaminate(blob: Blob): Promise<Blob> {
 }
 
 export function TransparentImageTool() {
+  // Start downloading the AI model in the background as soon as the page loads.
+  // By the time the user uploads an image, the model is already cached.
+  useEffect(() => {
+    preloadAiModel();
+  }, []);
   const [file, setFile] = useState<File | null>(null);
   const [sourceCanvas, setSourceCanvas] = useState<HTMLCanvasElement | null>(null);
   const [sourceUrl, setSourceUrl] = useState<string | null>(null);
@@ -179,14 +182,14 @@ export function TransparentImageTool() {
     setNotice(null);
     try {
       if (mode === "auto") {
-        // Show AI step messages
-        for (let i = 0; i < AI_STEPS.length; i++) {
-          setProcessingStep(AI_STEPS[i]);
-          // Small delay between steps for visual feedback
-          if (i < AI_STEPS.length - 1) await new Promise((r) => setTimeout(r, 100));
-        }
-        const aiResult = await removeBackgroundViaAi(file!, { alphaMatting, edgeRefinement, trimTransparent: trim });
-        console.log("[transparent-image] Backend pipeline:", aiResult.pipeline);
+        setProcessingStep("Loading AI model in browser…");
+        const aiResult = await removeBackgroundViaAi(file!, {
+          alphaMatting,
+          edgeRefinement,
+          trimTransparent: trim,
+          onProgress: (step) => setProcessingStep(step),
+        });
+        console.log("[transparent-image] Pipeline:", aiResult.pipeline);
         setNotice(`Pipeline: ${aiResult.pipeline}`);
         setProcessingStep("Applying edge refinement…");
         const decontaminated = await decontaminate(aiResult.blob);
@@ -480,7 +483,7 @@ export function TransparentImageTool() {
                     <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden />
                     <p className="text-sm font-medium text-muted-foreground">{processingStep ?? "Processing…"}</p>
                     {mode === "auto" && (
-                      <p className="text-xs text-muted-foreground/70">AI processing may take 5–15 seconds</p>
+                      <p className="text-xs text-muted-foreground/70">AI runs in your browser — model is self-hosted and cached after first use</p>
                     )}
                   </div>
                 )}
@@ -567,12 +570,12 @@ export function TransparentImageTool() {
         whatItDoes="The Transparent Image tool removes backgrounds and produces a real transparent PNG with an alpha channel. Use AI for automatic removal, a chosen color for solid backgrounds, or manual brushing to fine-tune the mask."
         howToUse="Upload an image, pick a mode (Auto, Color or Manual), adjust the options, then process. Inspect the result against checkerboard, white, black or a custom background, then download the PNG."
         supportedFormats={["JPG", "PNG", "WEBP"]}
-        privacyNote="Auto mode runs through the local AI service on your own machine. Color and Manual modes never leave your browser."
+        privacyNote="All modes run entirely in your browser. Auto mode uses a WASM AI model that downloads once and runs locally. Nothing leaves your device."
         faq={[
           { question: "What makes this a real transparent image?", answer: "The output PNG contains an actual per-pixel alpha channel — 0 for transparent, 255 for opaque and values in between for soft edges. It is not a white background or a CSS opacity effect." },
           { question: "Which mode should I use?", answer: "Auto uses AI and handles photos with hair, fur or glass best. Color removes a single color and suits logos and flat backgrounds. Manual lets you erase or restore parts of the transparency mask by hand." },
           { question: "How do I check for halos?", answer: "Flip the preview background between checkerboard, white, black and a custom color. A clean edge looks the same on every background." },
-          { question: "Auto mode needs the AI service?", answer: "The AI background removal requires the local rembg service (services/bg-remover). Color and Manual modes work fully in the browser on their own." },
+          { question: "Does Auto mode need a server?", answer: "No — Auto mode uses a WASM AI model that runs entirely in your browser. The model is self-hosted on the same server and cached by your browser after the first use. Color and Manual modes also work fully offline." },
         ]}
       />
     </ToolLayout>

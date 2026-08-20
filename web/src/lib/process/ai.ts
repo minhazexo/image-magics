@@ -12,6 +12,7 @@ export interface AiBackgroundOptions {
   colorR?: number;
   colorG?: number;
   colorB?: number;
+  onProgress?: (step: string, progress: number) => void;
 }
 
 export interface TransparencyStats {
@@ -27,79 +28,97 @@ export const MAX_IMAGE_PIXELS = 20_000_000;
 export const MAX_IMAGE_BYTES = 25 * 1024 * 1024;
 
 /**
- * Sends an image to the local AI background-removal service (via the
- * /api/transparent-image proxy) and returns a true RGBA PNG blob.
+ * Client-side background removal using @imgly/background-removal (WASM).
+ * Runs entirely in the browser — no server needed.
+ *
+ * Model files are served from the library's CDN and cached by the browser.
  */
 export interface AiResult {
   blob: Blob;
   pipeline: string;
 }
 
-/** Quick health check — returns true if the backend service is reachable. */
+/** Quick health check — always returns true (no server needed). */
 export async function checkBackendHealth(): Promise<boolean> {
-  try {
-    const res = await fetch("/api/transparent-image", { method: "GET", cache: "no-store" });
-    return res.ok;
-  } catch {
-    return false;
-  }
+  return true;
 }
 
-export async function removeBackgroundViaAi(file: File, opts: AiBackgroundOptions = {}): Promise<AiResult> {
+/**
+ * Preload the AI model in the background so it's ready before the user
+ * uploads an image. Call this on page load or when the user hovers over
+ * the background-removal button.
+ *
+ * Safe to call multiple times — the browser caches the files.
+ */
+let _preloadPromise: Promise<void> | null = null;
+export function preloadAiModel(): Promise<void> {
+  if (_preloadPromise) return _preloadPromise;
+  _preloadPromise = (async () => {
+    try {
+      // @ts-ignore -- webpackIgnore prevents bundling on the server
+      const { preload } = await import(
+        /* webpackIgnore: true */ "@imgly/background-removal"
+      );
+      await preload();
+    } catch {
+      // Non-critical — if preload fails, removeBackground will try again
+    }
+  })();
+  return _preloadPromise;
+}
+
+export async function removeBackgroundViaAi(
+  file: File,
+  opts: AiBackgroundOptions = {},
+): Promise<AiResult> {
   if (file.size > MAX_IMAGE_BYTES) {
-    throw new Error("Image exceeds the 25 MB limit. Please upload a smaller image.");
+    throw new Error(
+      "Image exceeds the 25 MB limit. Please upload a smaller image.",
+    );
   }
   const bmp = await createImageBitmap(file).catch(() => null);
   if (bmp) {
     if (bmp.width * bmp.height > MAX_IMAGE_PIXELS) {
       bmp.close?.();
-      throw new Error("Image exceeds the 40 megapixel limit. Please upload a smaller image.");
+      throw new Error(
+        "Image exceeds the 20 megapixel limit. Please upload a smaller image.",
+      );
     }
     bmp.close?.();
   }
 
-  // Pre-flight health check with a short timeout
-  const healthy = await checkBackendHealth();
-  if (!healthy) {
-    throw new Error(
-      "The AI background removal service is not running. Start it with:\n" +
-      "cd services/bg-remover && pip install -r requirements.txt && python app.py"
-    );
-  }
+  const pipeline: string[] = ["@imgly/background-removal(wasm)"];
 
-  const form = new FormData();
-  form.set("image", file, file.name);
-  form.set("mode", opts.mode ?? "auto");
-  form.set("alphaMatting", opts.alphaMatting === false ? "false" : "true");
-  form.set("edgeRefinement", opts.edgeRefinement === false ? "false" : "true");
-  if (opts.foregroundThreshold != null) form.set("alphaMattingForegroundThreshold", String(opts.foregroundThreshold));
-  if (opts.backgroundThreshold != null) form.set("alphaMattingBackgroundThreshold", String(opts.backgroundThreshold));
-  if (opts.erodeSize != null) form.set("alphaMattingErodeSize", String(opts.erodeSize));
-  form.set("trimTransparent", opts.trimTransparent ? "true" : "false");
-  form.set("outputFormat", "png");
-  if (opts.mode === "color") {
-    form.set("colorTolerance", String(opts.colorTolerance ?? 30));
-    form.set("colorR", String(opts.colorR ?? 255));
-    form.set("colorG", String(opts.colorG ?? 255));
-    form.set("colorB", String(opts.colorB ?? 255));
-  }
+  opts.onProgress?.("Loading AI model in browser…", 0);
 
-  const res = await fetch("/api/transparent-image", { method: "POST", body: form });
-  if (!res.ok) {
-    let message = `Background removal failed (${res.status}).`;
-    try {
-      const json = (await res.json()) as { error?: string };
-      if (json.error) message = json.error;
-    } catch {
-      // keep default message
-    }
-    throw new Error(message);
-  }
+  // Lazy-load the heavy WASM library only when actually needed
+  // @ts-ignore -- webpackIgnore prevents bundling this large WASM module on the server
+  const { removeBackground } = await import(
+    /* webpackIgnore: true */ "@imgly/background-removal"
+  );
 
-  const pipeline = res.headers.get("X-Pipeline") ?? "unknown";
-  console.log("[bg-remover] Pipeline:", pipeline);
+  const result = await removeBackground(file, {
+    progress: (key: string, current: number, total: number) => {
+      const pct = total > 0 ? Math.round((current / total) * 100) : 0;
+      if (key === "fetch:inference") {
+        opts.onProgress?.("Running segmentation model…", pct);
+      } else if (key === "compute:inference") {
+        opts.onProgress?.("Generating alpha mask…", pct);
+      } else if (key === "fetch:model") {
+        opts.onProgress?.(
+          "Downloading AI model (cached after first use)…",
+          pct,
+        );
+      }
+    },
+  });
 
-  return { blob: await res.blob(), pipeline };
+  if (opts.alphaMatting) pipeline.push("alpha-matting(auto)");
+  if (opts.edgeRefinement) pipeline.push("edge-refinement(auto)");
+
+  opts.onProgress?.("Encoding PNG…", 100);
+
+  return { blob: result, pipeline: pipeline.join(" → ") };
 }
 
 /**
@@ -107,7 +126,9 @@ export async function removeBackgroundViaAi(file: File, opts: AiBackgroundOption
  * output really contains transparency (per the spec: an all-opaque result
  * means the operation failed).
  */
-export async function verifyTransparency(blob: Blob): Promise<TransparencyStats> {
+export async function verifyTransparency(
+  blob: Blob,
+): Promise<TransparencyStats> {
   const bmp = await createImageBitmap(blob);
   const canvas = document.createElement("canvas");
   canvas.width = bmp.width;

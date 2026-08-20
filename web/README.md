@@ -1,65 +1,214 @@
-# ImageTools (web)
+<div align="center">
 
-A privacy-first, all-in-one image optimizer and image-tools website. Everything runs **locally in the browser** — your images are never uploaded to a server.
+# ImageTools
 
-Built from the product spec in [`docs/Project.md`](../docs/Project.md).
+**Privacy-first image processing — entirely in your browser.**
 
-## Features
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.x-38bdf8?logo=tailwindcss)](https://tailwindcss.com)
 
-- **17 tools** under one interface: Optimizer, Compressor, Resizer, Cropper, Converter, Background Remover, Transparent Image, Color → Transparent, Rotator, Flipper, Editor (filters + undo/redo), Watermark, Metadata Remover, JPG → PNG, PNG → JPG, WebP Converter, AVIF Converter, and Batch Processing.
-- **Local-first**: canvas/OffscreenCanvas processing in a Web Worker (with a main-thread fallback). No uploads, no accounts, no server storage.
-- **Before/after comparison**: drag slider showing original vs. result with byte savings.
-- **Batch + ZIP**: process many files at once and download all results as a ZIP (JSZip).
-- **Privacy**: no telemetry, no tracking, no permanent storage. Persisted state is limited to UI preferences (theme, last format, last quality).
-- **PWA**: installable, with an offline app shell service worker.
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-org/imagetools)
 
-## Getting started
+</div>
 
-Requirements: Node.js 18+ (tested with Node 22).
+---
+
+## What is this?
+
+ImageTools is an all-in-one image processing web app with **17 tools** that run 100% locally in your browser. No uploads. No servers. No accounts. Your images never leave your device.
+
+### Tools
+
+| Tool | What it does |
+|------|-------------|
+| **Optimizer** | Smart resize + compress + format in one click |
+| **Compressor** | Reduce file size with quality control |
+| **Resizer** | Resize by pixels, percentage, or presets |
+| **Cropper** | Free-form or aspect-ratio crop |
+| **Converter** | JPG ↔ PNG ↔ WebP ↔ AVIF |
+| **Transparent Image** | AI background removal (WASM, client-side) |
+| **Background Remover** | Remove backgrounds with AI segmentation |
+| **Color → Transparent** | Pick a color to make transparent |
+| **Rotator** | 90° rotations with preview |
+| **Flipper** | Horizontal & vertical mirrors |
+| **Editor** | Brightness, contrast, saturation, blur, sharpen, grayscale |
+| **Watermark** | Text or image watermark with positioning |
+| **Metadata Remover** | Strip EXIF data for privacy |
+| **Batch Processing** | Process multiple files at once |
+| **JPG → PNG** | Quick format conversion |
+| **PNG → JPG** | Quick format conversion |
+| **WebP Converter** | Convert to/from WebP |
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | [Next.js 14](https://nextjs.org) (App Router, static export) |
+| Language | [TypeScript](https://www.typescriptlang.org) |
+| UI | [React 18](https://react.dev) + [Tailwind CSS](https://tailwindcss.com) |
+| State | [Zustand](https://github.com/pmndrs/zustand) (with localStorage persistence for preferences) |
+| AI | [@imgly/background-removal](https://github.com/imgly/background-removal) (ONNX Runtime WASM) |
+| Validation | [Zod](https://zod.dev) |
+| ZIP | [JSZip](https://stuk.github.io/jszip/) |
+| Testing | [Vitest](https://vitest.dev) |
+| Package Manager | [Bun](https://bun.sh) |
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- [Bun](https://bun.sh) v1.0+ (recommended) or Node.js 18+
+
+### Installation
 
 ```bash
-cd web
-npm install
-npm run dev        # http://localhost:3000
+# Clone the repo
+git clone https://github.com/your-org/imagetools.git
+cd imagetools/web
+
+# Install dependencies
+bun install
+
+# Start dev server
+bun run dev
 ```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
 
 ## Scripts
 
-| Script | Description |
-| --- | --- |
-| `npm run dev` | Start the dev server |
-| `npm run build` | Production build (static export-ready) |
-| `npm run start` | Serve the production build |
-| `npm run lint` | ESLint via `next lint` |
-| `npm run typecheck` | `tsc --noEmit` |
-| `npm test` | Vitest unit tests |
+| Command | Description |
+|---------|-------------|
+| `bun run dev` | Start dev server (Next.js + AI service) |
+| `bun run dev:web` | Start Next.js dev server only |
+| `bun run build` | Production build |
+| `bun run start` | Serve production build |
+| `bun run typecheck` | TypeScript type checking |
+| `bun run lint` | ESLint |
+| `bun test` | Run Vitest tests |
 
-## Structure
+---
+
+## Architecture
 
 ```
-web/
-├── public/                  # PWA assets, sw.js, manifest
-├── src/
-│   ├── app/                 # Next.js App Router pages + layout + metadata
-│   ├── components/
-│   │   ├── image/           # Uploader, comparison slider, eyedropper, cards
-│   │   ├── layout/          # Header, footer, tool layout, SEO content, contact form
-│   │   ├── processing/      # Shared single-image workflow, format/quality controls
-│   │   ├── tools/           # One component per tool (16 + batch)
-│   │   └── ui/              # Button, Slider, Dialog, Tabs, Tooltip, Toast
-│   └── lib/
-│       ├── process/         # Engine (canvas ops), worker, client, ZIP
-│       ├── store/           # Zustand store (images, queue, preferences)
-│       ├── utils/           # Format, filename, dimensions, validation
-│       └── tools.ts         # Tool registry (slugs, categories, metadata)
+src/
+├── app/                    # Next.js App Router (17 tool pages + layout)
+├── components/
+│   ├── tools/              # One component per tool
+│   ├── processing/         # Shared workflow, format/quality controls
+│   ├── image/              # Uploader, comparison slider, cards
+│   ├── layout/             # Header, footer, tool layout
+│   └── ui/                 # Button, Slider, Dialog, Tabs, Toast
+└── lib/
+    ├── process/
+    │   ├── engine.ts       # Canvas processing engine
+    │   ├── client.ts       # Web Worker management
+    │   ├── ai.ts           # AI background removal (WASM)
+    │   └── mask.ts         # Edge refinement
+    ├── workers/            # Web Worker for background processing
+    ├── store/              # Zustand state management
+    └── utils/              # Format, filename, validation helpers
 ```
 
-## Docs
+### How Processing Works
+
+1. **Upload** → File validated (type, size ≤ 25 MB, pixels ≤ 20 MP)
+2. **Decode** → `createImageBitmap()` (or `HTMLImageElement` fallback)
+3. **Process** → Operations sent to Web Worker → Canvas/OffscreenCanvas engine
+4. **Result** → Blob + dimensions + timing returned to UI
+5. **Download** → User saves the processed image
+
+All processing happens in a **Web Worker** (with main-thread fallback) to keep the UI responsive.
+
+### AI Background Removal
+
+The Transparent Image tool uses `@imgly/background-removal` — a WASM library that runs ONNX inference entirely in the browser:
+
+- **Model**: `isnet_fp16` (~84 MB) downloaded from CDN on first use
+- **Runtime**: ONNX Runtime Web (WASM) runs locally
+- **Privacy**: No image data leaves the browser
+- **Caching**: Model cached after first use — zero download on subsequent visits
+- **Preloading**: Model downloads in background when user visits the page
+
+---
+
+## Deployment
+
+### Vercel (Recommended)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/your-org/imagetools)
+
+1. Push to GitHub
+2. Import on [vercel.com](https://vercel.com)
+3. Set **Root Directory** to `web`
+4. Deploy — Vercel auto-detects Next.js
+
+### Manual
+
+```bash
+cd web
+bun install
+bun run build
+# Output in .next/ — deploy to any static host
+```
+
+---
+
+## Privacy
+
+- **No uploads**: All processing runs locally in your browser
+- **No tracking**: No analytics, no telemetry, no cookies
+- **No storage**: Images exist only in browser memory (object URLs)
+- **PWA**: Installable, works offline after first visit
+- **AI model**: Downloaded from CDN, cached locally, runs via WASM
+
+See [docs/privacy.md](../docs/privacy.md) for details.
+
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feat/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to the branch (`git push origin feat/amazing-feature`)
+5. Open a Pull Request
+
+### Adding a New Tool
+
+1. Register in `src/lib/tools.ts`
+2. Create `src/components/tools/<slug>.tsx`
+3. Add `src/app/<slug>/page.tsx` with metadata
+4. Engine operations go in `src/lib/process/engine.ts`
+
+---
+
+## Documentation
 
 - [Architecture](../docs/architecture.md)
-- [Image processing pipeline](../docs/image-processing.md)
-- [Privacy model](../docs/privacy.md)
+- [Image Processing Pipeline](../docs/image-processing.md)
+- [Privacy Model](../docs/privacy.md)
+- [Product Spec](../docs/Project.md)
 
-## Tech stack
+---
 
-Next.js 14 (App Router) · React 18 · TypeScript · Tailwind CSS · Zustand · Zod · JSZip · Vitest.
+## License
+
+MIT © [Your Name/Org]
+
+---
+
+<div align="center">
+
+**Built with privacy in mind. Your images stay yours.**
+
+</div>

@@ -31,9 +31,19 @@ export function Header() {
   const [toolsOpen, setToolsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const mobileButtonRef = useRef<HTMLButtonElement>(null);
+  const closeTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => setMobileOpen(false), [pathname]);
-  useEffect(() => setToolsOpen(false), [pathname]);
+  useEffect(() => { setToolsOpen(false); if (closeTimerRef.current) clearTimeout(closeTimerRef.current); }, [pathname]);
+
+  const openTools = useCallback(() => {
+    if (closeTimerRef.current) { clearTimeout(closeTimerRef.current); closeTimerRef.current = null; }
+    setToolsOpen(true);
+  }, []);
+
+  const scheduleCloseTools = useCallback(() => {
+    closeTimerRef.current = setTimeout(() => setToolsOpen(false), 200);
+  }, []);
 
   useEffect(() => {
     if (!toolsOpen) return;
@@ -95,11 +105,8 @@ export function Header() {
         {/* Desktop nav: centered */}
         <nav className="hidden items-center gap-1 absolute left-1/2 -translate-x-1/2 lg:flex" aria-label="Main navigation">
           <div className="relative" ref={dropdownRef}
-            onMouseEnter={() => setToolsOpen(true)}
-            onMouseLeave={() => {
-              const timer = setTimeout(() => setToolsOpen(false), 150);
-              (dropdownRef.current as any).__cleanup = () => clearTimeout(timer);
-            }}
+            onMouseEnter={openTools}
+            onMouseLeave={scheduleCloseTools}
           >
             <button
               className={cn(

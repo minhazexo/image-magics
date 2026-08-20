@@ -4,18 +4,19 @@
   "private": true,
   "description": "ImageTools — a privacy-first, all-in-one image optimizer & image tools website. Everything runs locally in your browser.",
   "scripts": {
-    "dev": "concurrently --names web,ai --prefix-colors blue,green \"next dev\" \"npm run ai-service\"",
+    "dev": "concurrently --names web,ai --prefix-colors blue,green \"next dev\" \"bun run ai-service\"",
     "dev:web": "next dev",
     "build": "next build",
-    "start": "concurrently --names web,ai --prefix-colors blue,green \"next start\" \"npm run ai-service\"",
+    "start": "concurrently --names web,ai --prefix-colors blue,green \"next start\" \"bun run ai-service\"",
     "start:web": "next start",
-    "ai-service": "node scripts/start-ai.mjs",
+    "ai-service": "bun scripts/start-ai.mjs",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@imgly/background-removal": "^1.7.0",
     "jszip": "^3.10.1",
     "lucide-react": "^0.468.0",
     "next": "^14.2.35",

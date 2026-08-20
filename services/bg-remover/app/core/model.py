@@ -3,8 +3,16 @@
 from __future__ import annotations
 
 import logging
+import os
 import threading
 from typing import Any, Optional
+
+# Limit ONNX Runtime / BLAS thread counts to keep memory under cgroup limits
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("MKL_NUM_THREADS", "1")
+os.environ.setdefault("ONNX_NUM_THREADS", "1")
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+os.environ.setdefault("NUMEXPR_NUM_THREADS", "1")
 
 from rembg import new_session
 
