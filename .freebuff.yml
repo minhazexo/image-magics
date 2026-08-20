@@ -1,0 +1,5 @@
+preview:
+  install: cd web && npm install
+  command: cd web && next dev
+  port: 3000
+build: cd web && next build
