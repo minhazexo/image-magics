@@ -33,7 +33,7 @@ export function Footer() {
         <div className="sm:col-span-2 md:col-span-1">
           <Link href="/" className="inline-flex items-center font-semibold" aria-label="ImageTools home">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="ImageTools" className="h-10 sm:h-14 w-auto object-contain" />
+            <img src="/logo.png" alt="ImageTools" className="h-10 sm:h-14 w-auto object-contain" loading="lazy" decoding="async" />
           </Link>
           <p className="mt-2.5 max-w-xs text-sm text-muted-foreground leading-relaxed">
             Privacy-first image tools. Everything runs locally in your browser.

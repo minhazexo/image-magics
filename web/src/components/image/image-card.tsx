@@ -39,6 +39,7 @@ export function ImageCard({ image, onRemove, onSelect, selected, index }: ImageC
             alt={image.name}
             className="h-full w-full object-cover transition-opacity duration-200 group-hover:opacity-90"
             loading="lazy"
+            decoding="async"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).style.opacity = "0.15";
             }}

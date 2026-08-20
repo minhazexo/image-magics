@@ -35,6 +35,16 @@ export interface AiResult {
   pipeline: string;
 }
 
+/** Quick health check — returns true if the backend service is reachable. */
+export async function checkBackendHealth(): Promise<boolean> {
+  try {
+    const res = await fetch("/api/transparent-image", { method: "GET", cache: "no-store" });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 export async function removeBackgroundViaAi(file: File, opts: AiBackgroundOptions = {}): Promise<AiResult> {
   if (file.size > MAX_IMAGE_BYTES) {
     throw new Error("Image exceeds the 25 MB limit. Please upload a smaller image.");
@@ -46,6 +56,15 @@ export async function removeBackgroundViaAi(file: File, opts: AiBackgroundOption
       throw new Error("Image exceeds the 40 megapixel limit. Please upload a smaller image.");
     }
     bmp.close?.();
+  }
+
+  // Pre-flight health check with a short timeout
+  const healthy = await checkBackendHealth();
+  if (!healthy) {
+    throw new Error(
+      "The AI background removal service is not running. Start it with:\n" +
+      "cd services/bg-remover && pip install -r requirements.txt && python app.py"
+    );
   }
 
   const form = new FormData();
@@ -93,7 +112,7 @@ export async function verifyTransparency(blob: Blob): Promise<TransparencyStats>
   const canvas = document.createElement("canvas");
   canvas.width = bmp.width;
   canvas.height = bmp.height;
-  const ctx = canvas.getContext("2d")!;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
   ctx.drawImage(bmp, 0, 0);
   bmp.close?.();
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
+import { lazy, Suspense, useCallback, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -8,11 +9,14 @@ import {
   ImageDown, ArrowDownWideNarrow, Scissors, RefreshCw, Images,
   Crop, Palette, Type, SlidersHorizontal, PaintBucket, Eraser, FileImage, Shrink,
 } from "lucide-react";
-import { Button, buttonStyles } from "@/components/ui/button";
-import { ImageUploader } from "@/components/image/uploader";
+
+/* Lazy-load the heavy ImageUploader so the homepage JS bundle stays small */
+const ImageUploader = dynamic(
+  () => import("@/components/image/uploader").then((m) => m.ImageUploader),
+  { ssr: false }
+);
+
 import type { UploadedImage } from "@/lib/types";
-import { useImageStore } from "@/lib/store/useImageStore";
-import { cn } from "@/lib/utils/cn";
 
 const ALL_TOOLS = [
   { slug: "optimizer", name: "Image Optimizer", desc: "Optimize for web delivery", icon: ImageDown, category: "popular" },
@@ -21,34 +25,39 @@ const ALL_TOOLS = [
   { slug: "transparent-image", name: "Transparent Image", desc: "Remove backgrounds with AI", icon: PaintBucket, category: "popular" },
   { slug: "converter", name: "Image Converter", desc: "JPG, PNG, WebP", icon: RefreshCw, category: "popular" },
   { slug: "batch", name: "Batch Processor", desc: "Process many images at once", icon: Images, category: "popular" },
-  { slug: "cropper", name: "Image Cropper", desc: "Crop to any ratio", icon: Crop, category: "more" },
-  { slug: "editor", name: "Image Editor", desc: "Filters, brightness, contrast", icon: SlidersHorizontal, category: "more" },
-  { slug: "watermark", name: "Watermark Tool", desc: "Add text or logo", icon: Type, category: "more" },
-  { slug: "metadata-remover", name: "Metadata Remover", desc: "Strip EXIF & GPS data", icon: Eraser, category: "more" },
-  { slug: "rotator", name: "Image Rotator", desc: "Rotate & flip", icon: Shrink, category: "more" },
-  { slug: "jpg-to-png", name: "JPG to PNG", desc: "Convert JPG to PNG", icon: FileImage, category: "more" },
-  { slug: "png-to-jpg", name: "PNG to JPG", desc: "Convert PNG to JPG", icon: FileImage, category: "more" },
-  { slug: "webp-converter", name: "WebP Converter", desc: "Convert to WebP", icon: FileImage, category: "more" },
-  { slug: "color-to-transparent", name: "Color to Transparent", desc: "Pick color, make transparent", icon: Palette, category: "more" },
 ];
+
+const MORE_TOOLS = [
+  { slug: "cropper", name: "Image Cropper", desc: "Crop to any ratio", icon: Crop },
+  { slug: "editor", name: "Image Editor", desc: "Filters, brightness, contrast", icon: SlidersHorizontal },
+  { slug: "watermark", name: "Watermark Tool", desc: "Add text or logo", icon: Type },
+  { slug: "metadata-remover", name: "Metadata Remover", desc: "Strip EXIF & GPS data", icon: Eraser },
+  { slug: "rotator", name: "Image Rotator", desc: "Rotate & flip", icon: Shrink },
+  { slug: "jpg-to-png", name: "JPG to PNG", desc: "Convert JPG to PNG", icon: FileImage },
+  { slug: "png-to-jpg", name: "PNG to JPG", desc: "Convert PNG to JPG", icon: FileImage },
+  { slug: "webp-converter", name: "WebP Converter", desc: "Convert to WebP", icon: FileImage },
+  { slug: "color-to-transparent", name: "Color to Transparent", desc: "Pick color, make transparent", icon: Palette },
+];
+
+const ALL_TOOLS_COUNT = ALL_TOOLS.length + MORE_TOOLS.length;
 
 export default function HomePage() {
   const router = useRouter();
   const [images, setImages] = useState<UploadedImage[]>([]);
-  const addImagesToStore = useImageStore((s) => s.addImages);
   const [showAll, setShowAll] = useState(false);
 
   const handleUploaded = (incoming: UploadedImage[]) => {
     setImages(incoming);
     if (incoming.length) {
-      addImagesToStore(incoming);
-      router.push("/optimizer");
+      /* Dynamically import the store to avoid pulling it into the initial bundle */
+      import("@/lib/store/useImageStore").then(({ useImageStore }) => {
+        useImageStore.getState().addImages(incoming);
+        router.push("/optimizer");
+      });
     }
   };
 
-  const popularTools = useMemo(() => ALL_TOOLS.filter((t) => t.category === "popular"), []);
-  const moreTools = useMemo(() => ALL_TOOLS.filter((t) => t.category === "more"), []);
-  const displayedTools = showAll ? ALL_TOOLS : popularTools;
+  const displayedTools = showAll ? [...ALL_TOOLS, ...MORE_TOOLS] : ALL_TOOLS;
 
   return (
     <div>
@@ -115,7 +124,7 @@ export default function HomePage() {
               onClick={() => setShowAll(true)}
               className="text-sm font-medium text-primary hover:underline"
             >
-              Show all {ALL_TOOLS.length} tools
+              Show all {ALL_TOOLS_COUNT} tools
             </button>
           </div>
         )}

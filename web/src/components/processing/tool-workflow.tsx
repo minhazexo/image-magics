@@ -259,7 +259,7 @@ export function ToolWorkflow({
                 {images[0].valid && (
                   <div className="relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-lg border border-border">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={images[0].url} alt={images[0].name} className="h-full w-full object-cover" loading="lazy" />
+                    <img src={images[0].url} alt={images[0].name} className="h-full w-full object-cover" loading="lazy" decoding="async" />
                   </div>
                 )}
                 <div className="min-w-0 flex-1">

@@ -197,7 +197,7 @@ export function TransparentImageTool() {
         const canvas = document.createElement("canvas");
         canvas.width = src.width;
         canvas.height = src.height;
-        const ctx = canvas.getContext("2d")!;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
         ctx.drawImage(src, 0, 0);
         removeColorFromCanvas(canvas, ctx, { color: parseColor(color), tolerance, edgeSmoothing });
         if (feather > 0) softenAlpha(canvas, ctx, feather);

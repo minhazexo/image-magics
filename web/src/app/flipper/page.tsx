@@ -1,6 +1,15 @@
 import type { Metadata } from "next";
-import { RotatorTool } from "@/components/tools/rotator";
+import dynamic from "next/dynamic";
 import { buildMetadata } from "@/lib/seo";
+
+const RotatorTool = dynamic(() => import("@/components/tools/rotator").then((m) => m.RotatorTool), {
+  ssr: false,
+  loading: () => (
+    <div className="container-page flex min-h-[60vh] items-center justify-center">
+      <div className="text-sm text-muted-foreground">Loading flipper…</div>
+    </div>
+  ),
+});
 
 export const metadata: Metadata = buildMetadata({
   title: "Free Image Flipper — Mirror Images Horizontally & Vertically",

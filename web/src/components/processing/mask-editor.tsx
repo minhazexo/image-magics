@@ -48,7 +48,7 @@ export function MaskEditor({ source, onApply, onCancel }: MaskEditorProps) {
     const canvas = canvasRef.current;
     const working = workingRef.current;
     if (!canvas || !working) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) return;
     ctx.putImageData(working, 0, 0);
   }, []);
@@ -68,7 +68,7 @@ export function MaskEditor({ source, onApply, onCancel }: MaskEditorProps) {
     if (!canvas) return;
     canvas.width = source.width;
     canvas.height = source.height;
-    const ctx = canvas.getContext("2d")!;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true })!;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(source, 0, 0);
     const working = ctx.getImageData(0, 0, canvas.width, canvas.height);

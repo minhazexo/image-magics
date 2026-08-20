@@ -89,7 +89,7 @@ export function Header() {
           aria-label="ImageTools home"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="ImageTools" className="h-10 w-auto object-contain" />
+          <img src="/logo.png" alt="ImageTools" className="h-10 w-auto object-contain" fetchPriority="high" width={120} height={40} />
         </Link>
 
         {/* Desktop nav: centered */}

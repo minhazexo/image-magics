@@ -230,6 +230,8 @@ export function ImageComparison({
                 src={processedUrl}
                 alt={processedAlt}
                 draggable={false}
+                loading="lazy"
+                decoding="async"
                 className="pointer-events-none max-h-full max-w-full object-contain"
                 style={{ transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)` }}
               />
@@ -244,6 +246,8 @@ export function ImageComparison({
                 src={originalUrl}
                 alt={originalAlt}
                 draggable={false}
+                loading="lazy"
+                decoding="async"
                 className="pointer-events-none max-h-full max-w-full object-contain"
                 style={{ transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)` }}
               />
@@ -276,6 +280,8 @@ export function ImageComparison({
                 src={originalUrl}
                 alt={originalAlt}
                 draggable={false}
+                loading="lazy"
+                decoding="async"
                 className="pointer-events-none absolute inset-0 m-auto max-h-full max-w-full object-contain"
                 style={{ transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)` }}
               />
@@ -288,6 +294,8 @@ export function ImageComparison({
                 src={processedUrl}
                 alt={processedAlt}
                 draggable={false}
+                loading="lazy"
+                decoding="async"
                 className="pointer-events-none absolute inset-0 m-auto max-h-full max-w-full object-contain"
                 style={{ transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)` }}
               />

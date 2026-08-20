@@ -1,6 +1,18 @@
 import type { Metadata } from "next";
-import { ColorToTransparentTool } from "@/components/tools/color-to-transparent";
+import dynamic from "next/dynamic";
 import { buildMetadata } from "@/lib/seo";
+
+const ColorToTransparentTool = dynamic(
+  () => import("@/components/tools/color-to-transparent").then((m) => m.ColorToTransparentTool),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="container-page flex min-h-[60vh] items-center justify-center">
+        <div className="text-sm text-muted-foreground">Loading color tool…</div>
+      </div>
+    ),
+  }
+);
 
 export const metadata: Metadata = buildMetadata({
   title: "Free Color to Transparent — Remove a Specific Color from Images Online",

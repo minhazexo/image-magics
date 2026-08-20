@@ -1,6 +1,15 @@
 import type { Metadata } from "next";
-import { ConverterTool } from "@/components/tools/converter";
+import dynamic from "next/dynamic";
 import { buildMetadata } from "@/lib/seo";
+
+const ConverterTool = dynamic(() => import("@/components/tools/converter").then((m) => m.ConverterTool), {
+  ssr: false,
+  loading: () => (
+    <div className="container-page flex min-h-[60vh] items-center justify-center">
+      <div className="text-sm text-muted-foreground">Loading PNG→JPG converter…</div>
+    </div>
+  ),
+});
 
 export const metadata: Metadata = buildMetadata({
   title: "Free PNG to JPG Converter — Convert PNG to JPG Online",

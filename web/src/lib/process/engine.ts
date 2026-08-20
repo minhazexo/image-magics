@@ -680,7 +680,7 @@ export async function processBitmap(
   encode?: { format: ImageFormat | "auto"; quality: number; sourceFormat?: ImageFormat; compression?: Partial<CompressionOptions> }
 ): Promise<{ blob: Blob; width: number; height: number; mimeType: string }> {
   const canvas = createCanvas(bitmap.width, bitmap.height);
-  const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true }) as CanvasRenderingContext2D;
 
   let currentWidth = bitmap.width;
   let currentHeight = bitmap.height;
