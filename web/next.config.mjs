@@ -34,14 +34,13 @@ const nextConfig = {
     }
 
     if (!isServer) {
-      // onnxruntime-web .mjs files contain import.meta (valid ESM) but
-      // webpack's default "javascript/auto" type makes Terser treat them
-      // as CJS → "'import' cannot be used outside of module code".
-      // Fix: explicitly mark onnxruntime-web .mjs as ESM so Terser
-      // handles them correctly.
+      // .mjs files from onnxruntime-web and @imgly/background-removal use
+      // import.meta (valid ESM) but webpack's default "javascript/auto"
+      // makes Terser treat them as CJS → parse errors.
+      // Fix: explicitly mark them as ESM.
       config.module.rules.push({
         test: /\.mjs$/,
-        include: /node_modules[\\/]onnxruntime-web/,
+        include: /node_modules[\\/](onnxruntime-web|@imgly[\\/]background-removal)/,
         type: "javascript/esm",
       });
     }

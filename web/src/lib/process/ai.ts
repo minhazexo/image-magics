@@ -92,6 +92,10 @@ export async function removeBackgroundViaAi(
   const { removeBackground } = await import("@imgly/background-removal");
 
   const result = await removeBackground(file, {
+    // Explicitly set publicPath to bypass the Zod schema transform that
+    // calls .replace() and can break when webpack mangles internal vars.
+    publicPath:
+      "https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/",
     progress: (key: string, current: number, total: number) => {
       const pct = total > 0 ? Math.round((current / total) * 100) : 0;
       if (key === "fetch:inference") {
