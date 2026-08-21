@@ -1,6 +1,8 @@
 import { fileURLToPath } from "url";
 import path from "path";
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import { dirname } from "path";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -9,6 +11,14 @@ const nextConfig = {
   poweredByHeader: false,
   compress: true,
   generateEtags: true,
+
+  // Don't bundle these server-side — they're browser-only WASM packages
+  serverExternalPackages: [
+    "@imgly/background-removal",
+    "onnxruntime-web",
+    "onnxruntime-common",
+    "onnxruntime-node",
+  ],
 
   // Tree-shake lucide-react properly
   experimental: {
@@ -19,7 +29,7 @@ const nextConfig = {
     if (isServer) {
       // Stub out browser-only WASM/ONNX packages on the server
       // These only run in the browser via dynamic import
-      const noopPath = path.resolve(__dirname, "lib/noop-ort.js");
+      const noopPath = path.join(__dirname, "lib", "noop-ort.js");
       config.resolve.alias = {
         ...config.resolve.alias,
         "@imgly/background-removal": noopPath,
