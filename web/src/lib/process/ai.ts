@@ -56,7 +56,10 @@ export function preloadAiModel(): Promise<void> {
   _preloadPromise = (async () => {
     try {
       const { preload } = await import("@imgly/background-removal");
-      await preload();
+      await preload({
+        publicPath:
+          "https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/",
+      });
     } catch {
       // Non-critical — if preload fails, removeBackground will try again
     }

@@ -12,6 +12,10 @@ const nextConfig = {
   compress: true,
   generateEtags: true,
 
+  // Let Next.js properly transpile these packages so webpack
+  // handles their ESM/CJS modules correctly.
+  transpilePackages: ["@imgly/background-removal", "onnxruntime-web"],
+
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },
@@ -34,14 +38,14 @@ const nextConfig = {
     }
 
     if (!isServer) {
-      // .mjs files from onnxruntime-web and @imgly/background-removal use
-      // import.meta (valid ESM) but webpack's default "javascript/auto"
-      // makes Terser treat them as CJS → parse errors.
-      // Fix: explicitly mark them as ESM.
+      // onnxruntime-web's .mjs files use import.meta which webpack
+      // treats as invalid in default mode. transpilePackages above
+      // handles most of it, but we also need noParse for the pre-bundled
+      // .min.mjs files to skip SWC parsing (they're self-contained).
       config.module.rules.push({
-        test: /\.mjs$/,
-        include: /node_modules[\\/](onnxruntime-web|@imgly[\\/]background-removal)/,
-        type: "javascript/esm",
+        test: /\.min\.mjs$/,
+        include: /node_modules[\\/]onnxruntime-web/,
+        type: "javascript/auto",
       });
     }
 
