@@ -1,9 +1,3 @@
-import { fileURLToPath } from "url";
-import path from "path";
-import { dirname } from "path";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -14,38 +8,6 @@ const nextConfig = {
 
   experimental: {
     optimizePackageImports: ["lucide-react"],
-  },
-
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      // Server side: stub out browser-only WASM/ONNX packages
-      const noopPath = path.join(__dirname, "lib", "noop-ort.js");
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        "@imgly/background-removal": noopPath,
-        "onnxruntime-web": noopPath,
-        "onnxruntime-common": noopPath,
-        "onnxruntime-node": noopPath,
-        "onnxruntime-web/webgpu": noopPath,
-        "onnxruntime-web/wasm": noopPath,
-        "onnxruntime-web/ort-wasm-simd-threaded": noopPath,
-        "onnxruntime-web/ort-wasm-simd-threaded.jsep": noopPath,
-      };
-    }
-
-    if (!isServer) {
-      // onnxruntime-web .mjs files contain import.meta (valid ESM) but
-      // webpack's default "javascript/auto" makes SWC treat them as CJS
-      // → "'import.meta' cannot be used outside of module code".
-      // Fix: explicitly mark them as ESM.
-      config.module.rules.push({
-        test: /\.mjs$/,
-        include: /node_modules[\\/]onnxruntime-web/,
-        type: "javascript/esm",
-      });
-    }
-
-    return config;
   },
 
   async headers() {

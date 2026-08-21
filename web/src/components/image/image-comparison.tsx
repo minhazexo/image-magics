@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element -- local blob/object URLs from client-side processing; next/image cannot optimize these */
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MoveHorizontal, ZoomIn, ZoomOut, Maximize, RotateCcw, Columns, Square } from "lucide-react";
 import { cn } from "@/lib/utils/cn";

@@ -42,7 +42,10 @@ export function EditorTool() {
   const [result, setResult] = useState<ProcessingResult | null>(null);
   const [processing, setProcessing] = useState(false);
 
-  const currentSnapshot = (): EditorSnapshot => ({ ...filters, rotation, flipH, flipV });
+  const currentSnapshot = useCallback(
+    (): EditorSnapshot => ({ ...filters, rotation, flipH, flipV }),
+    [filters, rotation, flipH, flipV]
+  );
 
   const pushHistory = useCallback((snapshot: EditorSnapshot) => {
     setHistory((prev) => {
@@ -67,8 +70,8 @@ export function EditorTool() {
       setRotation(0);
       setFlipH(false);
       setFlipV(false);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally runs once per uploaded image and resets all state
   }, [image]);
 
   const renderPreview = useCallback(

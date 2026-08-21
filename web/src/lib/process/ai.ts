@@ -31,16 +31,32 @@ export const MAX_IMAGE_BYTES = 25 * 1024 * 1024;
  * Client-side background removal using @imgly/background-removal (WASM).
  * Runs entirely in the browser — no server needed.
  *
- * Model files are served from the library's CDN and cached by the browser.
+ * The library is loaded from /vendor (see scripts/sync-vendor.mjs) instead of
+ * the webpack graph: bundling it through webpack rewrites onnxruntime-web's
+ * `new URL()` calls into a RelativeURL shim that crashes on the blob: URLs
+ * used for WASM loading ("url.replace is not a function").
  */
 export interface AiResult {
   blob: Blob;
   pipeline: string;
 }
 
-/** Quick health check — always returns true (no server needed). */
-export async function checkBackendHealth(): Promise<boolean> {
-  return true;
+interface ImglyModule {
+  preload: (config?: Record<string, unknown>) => Promise<void>;
+  removeBackground: (
+    image: Blob | File,
+    config?: Record<string, unknown>,
+  ) => Promise<Blob>;
+}
+
+const IMGLY_URL = "/vendor/imgly/index.mjs";
+
+let _imglyModule: Promise<ImglyModule> | null = null;
+function loadImgly(): Promise<ImglyModule> {
+  if (!_imglyModule) {
+    _imglyModule = import(/* webpackIgnore: true */ IMGLY_URL) as Promise<ImglyModule>;
+  }
+  return _imglyModule;
 }
 
 /**
@@ -55,7 +71,7 @@ export function preloadAiModel(): Promise<void> {
   if (_preloadPromise) return _preloadPromise;
   _preloadPromise = (async () => {
     try {
-      const { preload } = await import("@imgly/background-removal");
+      const { preload } = await loadImgly();
       await preload({
         publicPath:
           "https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/",
@@ -91,12 +107,9 @@ export async function removeBackgroundViaAi(
 
   opts.onProgress?.("Loading AI model in browser…", 0);
 
-  // Lazy-load the heavy WASM library only when actually needed
-  const { removeBackground } = await import("@imgly/background-removal");
+  const { removeBackground } = await loadImgly();
 
   const result = await removeBackground(file, {
-    // Explicitly set publicPath to bypass the Zod schema transform that
-    // calls .replace() and can break when webpack mangles internal vars.
     publicPath:
       "https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/",
     progress: (key: string, current: number, total: number) => {
