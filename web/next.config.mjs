@@ -34,26 +34,47 @@ const nextConfig = {
     }
 
     if (!isServer) {
-      // @imgly/background-removal v1.7.0 ships a .cjs entry containing
-      // import.meta.url (from ONNX Runtime) — invalid in CJS, SWC rejects it.
-      // Fix: tell webpack to prefer the "import" condition in package.json
-      // exports, which maps to the .mjs (ESM) entry that handles import.meta
-      // correctly. The "..." spreads default condition names so other packages
-      // are unaffected.
-      config.resolve.conditionNames = [
-        "import",
-        "module",
-        "...",
-      ];
+      const ortBase = path.join(
+        __dirname,
+        "node_modules",
+        "onnxruntime-web",
+        "dist",
+      );
 
-      // Also treat .mjs files from these packages as auto (not strict ESM)
-      // so webpack bundles them without SWC parse errors
-      config.module.rules.push({
-        test: /\.mjs$/,
-        include: /node_modules[\\/](?:@imgly|onnxruntime)/,
-        type: "javascript/auto",
-        resolve: { fullySpecified: false },
+      const ortCjs = {
+        "onnxruntime-web": path.join(ortBase, "ort.min.js"),
+        "onnxruntime-web/webgpu": path.join(ortBase, "ort.webgpu.min.js"),
+        "onnxruntime-web/wasm": path.join(ortBase, "ort.wasm.min.js"),
+        "onnxruntime-web/webgl": path.join(ortBase, "ort.webgl.min.js"),
+        "onnxruntime-web/all": path.join(ortBase, "ort.all.min.js"),
+      };
+
+      // Custom resolver: use the "beforeResolve" hook which fires before
+      // any resolution including exports field lookup.
+      config.resolve.plugins = config.resolve.plugins || [];
+      config.resolve.plugins.push({
+        apply(resolver) {
+          resolver
+            .getHook("beforeResolve")
+            .tapAsync(
+              "OnnxCjsResolver",
+              (request, resolveContext, callback) => {
+                const req =
+                  request.request || request.path || request;
+                if (typeof req === "string" && ortCjs[req]) {
+                  request.request = ortCjs[req];
+                }
+                callback();
+              },
+            );
+        },
       });
+
+      // Fallback aliases
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        ...ortCjs,
+      };
     }
 
     return config;
