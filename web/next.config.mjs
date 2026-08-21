@@ -18,7 +18,7 @@ const nextConfig = {
 
   webpack: (config, { isServer }) => {
     if (isServer) {
-      // Stub out browser-only WASM/ONNX packages on the server
+      // Server side: stub out browser-only WASM/ONNX packages
       const noopPath = path.join(__dirname, "lib", "noop-ort.js");
       config.resolve.alias = {
         ...config.resolve.alias,
@@ -33,42 +33,28 @@ const nextConfig = {
       };
     }
 
-    // @imgly/background-removal v1.7.0 ships a broken .cjs entry that contains
-    // import.meta.url (from ONNX Runtime WASM). SWC cannot parse import.meta in
-    // a CommonJS context. Fix: point webpack to the .mjs (ESM) entry for both
-    // client and server, and tell webpack not to parse the .cjs at all.
-    const imglyMjsPath = path.join(
-      __dirname,
-      "node_modules",
-      "@imgly",
-      "background-removal",
-      "dist",
-      "index.mjs",
-    );
-
     if (!isServer) {
-      // Client side: resolve to the .mjs entry (ESM handles import.meta correctly)
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        "@imgly/background-removal": imglyMjsPath,
-      };
+      // @imgly/background-removal v1.7.0 ships a .cjs entry containing
+      // import.meta.url (from ONNX Runtime) — invalid in CJS, SWC rejects it.
+      // Fix: tell webpack to prefer the "import" condition in package.json
+      // exports, which maps to the .mjs (ESM) entry that handles import.meta
+      // correctly. The "..." spreads default condition names so other packages
+      // are unaffected.
+      config.resolve.conditionNames = [
+        "import",
+        "module",
+        "...",
+      ];
+
+      // Also treat .mjs files from these packages as auto (not strict ESM)
+      // so webpack bundles them without SWC parse errors
+      config.module.rules.push({
+        test: /\.mjs$/,
+        include: /node_modules[\\/](?:@imgly|onnxruntime)/,
+        type: "javascript/auto",
+        resolve: { fullySpecified: false },
+      });
     }
-
-    // Prevent webpack from parsing the broken .cjs file from @imgly
-    // (it contains import.meta in a CJS context which SWC rejects)
-    config.module.rules.push({
-      test: /node_modules[\\/]@imgly[\\/]background-removal[\\/]dist[\\/]index\.cjs$/,
-      type: "javascript/auto",
-      resolve: { fullySpecified: false },
-    });
-
-    // Also prevent SWC from trying to parse onnxruntime .mjs files
-    config.module.rules.push({
-      test: /\.mjs$/,
-      include: /node_modules[\\/]onnxruntime/,
-      type: "javascript/auto",
-      resolve: { fullySpecified: false },
-    });
 
     return config;
   },
