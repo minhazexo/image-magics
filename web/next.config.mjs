@@ -12,11 +12,6 @@ const nextConfig = {
   compress: true,
   generateEtags: true,
 
-  // Let Next.js properly transpile @imgly/background-removal.
-  // Do NOT include onnxruntime-web here — transpilePackages runs SWC on
-  // the package files, and SWC can't handle import.meta in .mjs files.
-  transpilePackages: ["@imgly/background-removal"],
-
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },
@@ -42,9 +37,7 @@ const nextConfig = {
       // onnxruntime-web .mjs files contain import.meta (valid ESM) but
       // webpack's default "javascript/auto" makes SWC treat them as CJS
       // → "'import.meta' cannot be used outside of module code".
-      // Fix: explicitly mark them as ESM so SWC handles them correctly.
-      // The resulting "Critical dependency" warnings are harmless — they
-      // don't break the build or runtime.
+      // Fix: explicitly mark them as ESM.
       config.module.rules.push({
         test: /\.mjs$/,
         include: /node_modules[\\/]onnxruntime-web/,
