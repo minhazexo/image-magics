@@ -55,10 +55,7 @@ export function preloadAiModel(): Promise<void> {
   if (_preloadPromise) return _preloadPromise;
   _preloadPromise = (async () => {
     try {
-      // @ts-ignore -- webpackIgnore prevents bundling on the server
-      const { preload } = await import(
-        /* webpackIgnore: true */ "@imgly/background-removal"
-      );
+      const { preload } = await import("@imgly/background-removal");
       await preload();
     } catch {
       // Non-critical — if preload fails, removeBackground will try again
@@ -92,10 +89,7 @@ export async function removeBackgroundViaAi(
   opts.onProgress?.("Loading AI model in browser…", 0);
 
   // Lazy-load the heavy WASM library only when actually needed
-  // @ts-ignore -- webpackIgnore prevents bundling this large WASM module on the server
-  const { removeBackground } = await import(
-    /* webpackIgnore: true */ "@imgly/background-removal"
-  );
+  const { removeBackground } = await import("@imgly/background-removal");
 
   const result = await removeBackground(file, {
     progress: (key: string, current: number, total: number) => {
