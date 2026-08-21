@@ -75,6 +75,15 @@ const nextConfig = {
         ...config.resolve.alias,
         ...ortCjs,
       };
+
+      // These CJS bundles use dynamic require() patterns (e.g. require(var))
+      // that webpack can't statically analyze, causing "Critical dependency"
+      // warnings. They're pre-bundled — no need to parse their internals.
+      // noParse tells webpack to include them as-is without dependency scanning.
+      config.module.noParse = [
+        ...(config.module.noParse || []),
+        /node_modules[\\/]onnxruntime-web[\\/]dist[\\/]ort[\\w.]*\.js$/,
+      ];
     }
 
     return config;
