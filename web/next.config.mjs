@@ -12,7 +12,7 @@ const nextConfig = {
 
   // Tree-shake lucide-react properly
   experimental: {
-    optimizePackageImports: ["lucide-react"],
+    optimizePackageImports: ["lucide-react", "three", "gsap"],
   },
 
   webpack: (config, { isServer }) => {

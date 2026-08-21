@@ -82,7 +82,7 @@ export function Header() {
   const isActive = (href: string) => pathname === href || (href !== "/" && pathname.startsWith(href));
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/80 backdrop-blur-xl backdrop-saturate-150">
+    <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background backdrop-blur-xl backdrop-saturate-150">
       <div className="container-page relative flex h-14 items-center gap-4">
         {/* Mobile: theme toggle (left) */}
         <div className="flex items-center lg:hidden">

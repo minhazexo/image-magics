@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { lazy, Suspense, useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -13,6 +13,12 @@ import {
 /* Lazy-load the heavy ImageUploader so the homepage JS bundle stays small */
 const ImageUploader = dynamic(
   () => import("@/components/image/uploader").then((m) => m.ImageUploader),
+  { ssr: false }
+);
+
+/* 3D pixel-particle hero background — client-only, avoids SSR hydration mismatch */
+const HeroBackground = dynamic(
+  () => import("@/components/home/hero-background").then((m) => m.HeroBackground),
   { ssr: false }
 );
 
@@ -59,24 +65,49 @@ export default function HomePage() {
 
   const displayedTools = showAll ? [...ALL_TOOLS, ...MORE_TOOLS] : ALL_TOOLS;
 
+  const bgRef = useRef<HTMLDivElement>(null);
+
+  /* Clip the3D canvas so it stops at the footer's top border */
+  useEffect(() => {
+    const clip = () => {
+      const footer = document.querySelector<HTMLElement>("footer");
+      if (footer && bgRef.current) {
+        const footerH = footer.offsetHeight;
+        bgRef.current.style.clipPath = `inset(0 0 ${footerH}px 0)`;
+      }
+    };
+    clip();
+    window.addEventListener("resize", clip);
+    /* Re-measure after fonts/layout settle */
+    const t = setTimeout(clip, 500);
+    return () => { window.removeEventListener("resize", clip); clearTimeout(t); };
+  }, []);
+
   return (
-    <div>
+    <div className="relative">
+      {/* ── Full-page 3D background (fixed, clipped above footer) ── */}
+      <div ref={bgRef} className="pointer-events-none fixed inset-0" style={{ zIndex: 0 }}>
+        <HeroBackground />
+      </div>
+
       {/* ── Hero ──────────────────────────────────────────── */}
-      <section className="container-page flex flex-col items-center pb-8 pt-12 text-center sm:pt-16">
-        <div className="max-w-2xl">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-            Image tools that run
-            <br />
-            <span className="text-primary">entirely in your browser.</span>
-          </h1>
-          <p className="mx-auto mt-4 max-w-lg text-sm text-muted-foreground sm:text-base">
-            Optimize, compress, resize, convert, crop, and remove backgrounds — instantly, privately, and for free.
-          </p>
+      <section className="relative z-10 min-h-[80vh]">
+        <div className="container-page flex min-h-[80vh] flex-col items-center justify-center pb-8 pt-16 text-center">
+          <div className="max-w-2xl">
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+              Image tools that run
+              <br />
+              <span className="text-primary">entirely in your browser.</span>
+            </h1>
+            <p className="mx-auto mt-4 max-w-lg text-sm text-muted-foreground sm:text-base">
+              Optimize, compress, resize, convert, crop, and remove backgrounds — instantly, privately, and for free.
+            </p>
+          </div>
         </div>
       </section>
 
       {/* ── Upload CTA ───────────────────────────────────── */}
-      <section className="container-page pb-12">
+      <section className="relative z-10 container-page pb-12">
         <div className="mx-auto max-w-2xl">
           <ImageUploader images={images} onChange={handleUploaded} />
           <p className="mt-3 text-center text-xs text-muted-foreground">
@@ -86,7 +117,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Popular Tools ─────────────────────────────────── */}
-      <section className="container-page py-10" aria-labelledby="popular-heading">
+      <section className="relative z-10 container-page py-10" aria-labelledby="popular-heading">
         <div className="flex items-end justify-between gap-4">
           <div>
             <h2 id="popular-heading" className="text-lg font-bold tracking-tight sm:text-xl">
@@ -131,7 +162,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Why Use This Platform ─────────────────────────── */}
-      <section className="border-y border-border bg-secondary/30 py-12">
+      <section className="relative z-10 border-y border-border bg-background/80 backdrop-blur-sm py-12">
         <div className="container-page">
           <div className="mx-auto max-w-lg text-center">
             <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
@@ -161,7 +192,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Feature Highlights ────────────────────────────── */}
-      <section className="container-page py-12">
+      <section className="relative z-10 container-page py-12">
         <h2 className="text-lg font-bold tracking-tight sm:text-xl">How it works</h2>
         <div className="mt-6 grid gap-6 sm:grid-cols-3">
           {[
@@ -179,7 +210,7 @@ export default function HomePage() {
       </section>
 
       {/* ── FAQ ───────────────────────────────────────────── */}
-      <section className="container-page py-12">
+      <section className="relative z-10 container-page py-12">
         <h2 className="text-lg font-bold tracking-tight sm:text-xl">Frequently asked questions</h2>
         <div className="mt-5 grid gap-3 md:grid-cols-2">
           {[
