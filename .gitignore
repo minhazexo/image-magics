@@ -6,9 +6,6 @@ __pycache__/
 # Logs
 *.log
 
-# Bun
-web/bun.lock
-
 # Environment
 .env
 .env.local

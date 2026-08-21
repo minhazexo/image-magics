@@ -12,17 +12,16 @@ const nextConfig = {
   compress: true,
   generateEtags: true,
 
-  // Don't bundle these server-side — they're browser-only WASM packages
-  serverExternalPackages: [
-    "@imgly/background-removal",
-    "onnxruntime-web",
-    "onnxruntime-common",
-    "onnxruntime-node",
-  ],
-
   // Tree-shake lucide-react properly
   experimental: {
     optimizePackageImports: ["lucide-react"],
+    // Externalize browser-only WASM packages from server bundle
+    serverComponentsExternalPackages: [
+      "@imgly/background-removal",
+      "onnxruntime-web",
+      "onnxruntime-common",
+      "onnxruntime-node",
+    ],
   },
 
   webpack: (config, { isServer }) => {
