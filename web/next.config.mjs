@@ -34,56 +34,16 @@ const nextConfig = {
     }
 
     if (!isServer) {
-      const ortBase = path.join(
-        __dirname,
-        "node_modules",
-        "onnxruntime-web",
-        "dist",
-      );
-
-      const ortCjs = {
-        "onnxruntime-web": path.join(ortBase, "ort.min.js"),
-        "onnxruntime-web/webgpu": path.join(ortBase, "ort.webgpu.min.js"),
-        "onnxruntime-web/wasm": path.join(ortBase, "ort.wasm.min.js"),
-        "onnxruntime-web/webgl": path.join(ortBase, "ort.webgl.min.js"),
-        "onnxruntime-web/all": path.join(ortBase, "ort.all.min.js"),
-      };
-
-      // Custom resolver: use the "beforeResolve" hook which fires before
-      // any resolution including exports field lookup.
-      config.resolve.plugins = config.resolve.plugins || [];
-      config.resolve.plugins.push({
-        apply(resolver) {
-          resolver
-            .getHook("beforeResolve")
-            .tapAsync(
-              "OnnxCjsResolver",
-              (request, resolveContext, callback) => {
-                const req =
-                  request.request || request.path || request;
-                if (typeof req === "string" && ortCjs[req]) {
-                  request.request = ortCjs[req];
-                }
-                callback();
-              },
-            );
-        },
+      // onnxruntime-web .mjs files contain import.meta (valid ESM) but
+      // webpack's default "javascript/auto" type makes Terser treat them
+      // as CJS → "'import' cannot be used outside of module code".
+      // Fix: explicitly mark onnxruntime-web .mjs as ESM so Terser
+      // handles them correctly.
+      config.module.rules.push({
+        test: /\.mjs$/,
+        include: /node_modules[\\/]onnxruntime-web/,
+        type: "javascript/esm",
       });
-
-      // Fallback aliases
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        ...ortCjs,
-      };
-
-      // These CJS bundles use dynamic require() patterns (e.g. require(var))
-      // that webpack can't statically analyze, causing "Critical dependency"
-      // warnings. They're pre-bundled — no need to parse their internals.
-      // noParse tells webpack to include them as-is without dependency scanning.
-      config.module.noParse = [
-        ...(config.module.noParse || []),
-        /node_modules[\\/]onnxruntime-web[\\/]dist[\\/]ort[\\w.]*\.js$/,
-      ];
     }
 
     return config;
