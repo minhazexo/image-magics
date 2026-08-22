@@ -545,7 +545,7 @@ export function TransparentImageTool() {
         onClose={() => setEditorOpen(false)}
         title="Manual mask editor"
         description="Paint on the transparency mask. Erase removes parts, Restore brings back the original alpha."
-        className="max-w-4xl"
+        className="max-w-[min(896px,calc(100vw-2rem))]"
         footer={
           <>
             <Button variant="ghost" onClick={() => setEditorOpen(false)} disabled={busy}>

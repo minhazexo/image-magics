@@ -93,7 +93,7 @@ export function Dialog({ open, onClose, title, description, children, footer, cl
         tabIndex={-1}
         onKeyDown={handleKeyDown}
         className={cn(
-          "relative w-full max-w-lg rounded-xl border border-border bg-card p-5 sm:p-6 shadow-xl animate-slide-up",
+          "relative w-full max-w-lg max-h-[calc(100vh-2rem)] flex flex-col rounded-xl border border-border bg-card p-5 sm:p-6 shadow-xl animate-slide-up overflow-hidden",
           "focus:outline-none",
           className
         )}
@@ -124,7 +124,7 @@ export function Dialog({ open, onClose, title, description, children, footer, cl
         </div>
 
         {/* Body */}
-        <div className="mt-4">{children}</div>
+        <div className="mt-4 min-h-0 flex-1 overflow-y-auto overflow-x-hidden">{children}</div>
 
         {/* Footer */}
         {footer && <div className="mt-6 flex justify-end gap-2">{footer}</div>}

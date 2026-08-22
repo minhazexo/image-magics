@@ -195,7 +195,29 @@ export function MaskEditor({ source, onApply, onCancel }: MaskEditorProps) {
     render();
   }, [pushHistory, render]);
 
-  const displayWidth = useMemo(() => source.width * zoom, [source.width, zoom]);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  // Measure the available container width so the canvas never overflows the viewport.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const measure = () => {
+      setContainerWidth(el.clientWidth);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const displayWidth = useMemo(() => {
+    const natural = source.width * zoom;
+    // Clamp to the available container width (with some padding) so the canvas
+    // never pushes the dialog beyond the viewport.
+    const max = containerWidth > 0 ? containerWidth - 32 : natural; // 32px for padding
+    return Math.min(natural, Math.max(max, 200));
+  }, [source.width, zoom, containerWidth]);
 
   const apply = () => {
     if (!workingRef.current) return;
@@ -203,7 +225,7 @@ export function MaskEditor({ source, onApply, onCancel }: MaskEditorProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 min-h-0 flex flex-col">
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex rounded-md border border-border p-0.5" role="radiogroup" aria-label="Mask tool">
           <button
@@ -232,8 +254,8 @@ export function MaskEditor({ source, onApply, onCancel }: MaskEditorProps) {
           </button>
         </div>
 
-        <Slider label="Brush size" value={brushSize} min={2} max={120} onChange={setBrushSize} formatValue={(v) => `${v}px`} className="w-56" />
-        <Slider label="Zoom" value={zoom} min={1} max={8} step={0.25} onChange={setZoom} formatValue={(v) => `${Math.round(v * 100)}%`} className="w-40" />
+        <Slider label="Brush size" value={brushSize} min={2} max={120} onChange={setBrushSize} formatValue={(v) => `${v}px`} className="w-full sm:w-56" />
+        <Slider label="Zoom" value={zoom} min={1} max={8} step={0.25} onChange={setZoom} formatValue={(v) => `${Math.round(v * 100)}%`} className="w-full sm:w-40" />
 
         <div className="ml-auto flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={undo} disabled={!historyDepth} icon={<Undo2 className="h-4 w-4" aria-hidden />}>
@@ -248,10 +270,10 @@ export function MaskEditor({ source, onApply, onCancel }: MaskEditorProps) {
         </div>
       </div>
 
-      <div className="overflow-auto rounded-xl border border-border bg-[repeating-conic-gradient(hsl(var(--secondary))_0%_25%,hsl(var(--background))_0%_50%)] bg-[length:20px_20px] p-4">
+      <div ref={containerRef} className="min-h-0 flex-1 overflow-auto rounded-xl border border-border bg-[repeating-conic-gradient(hsl(var(--secondary))_0%_25%,hsl(var(--background))_0%_50%)] bg-[length:20px_20px] p-4">
         <canvas
           ref={canvasRef}
-          className="mx-auto touch-none rounded-sm shadow-sm"
+          className="mx-auto touch-none rounded-sm shadow-sm block max-w-full"
           style={{ width: `${displayWidth}px`, cursor: "crosshair" }}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
@@ -262,7 +284,7 @@ export function MaskEditor({ source, onApply, onCancel }: MaskEditorProps) {
         />
       </div>
 
-      <div className="flex items-center justify-end gap-2">
+      <div className="flex flex-wrap items-center justify-end gap-2">
         <Button variant="ghost" onClick={onCancel}>
           Cancel
         </Button>
