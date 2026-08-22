@@ -19,11 +19,13 @@
 # misc
 .DS_Store
 *.pem
+Thumbs.db
 
 # debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+bun-debug.log*
 
 # local env files
 .env*.local
@@ -36,3 +38,29 @@ next-env.d.ts
 # vercel
 .vercel
 
+# editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# lint
+.eslintcache
+
+# storybook (if added later)
+.storybook/out
+
+# misc
+*.log
